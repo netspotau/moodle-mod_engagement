@@ -34,8 +34,8 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="courseid-userid" UNIQUE="false" FIELDS="courseid, userid" NEXT="indicator"/>
-        <INDEX NAME="indicator" UNIQUE="false" FIELDS="indicator" PREVIOUS="courseid-userid"/>
+        <INDEX NAME="courseid-indicator" UNIQUE="false" FIELDS="courseid, indicator" NEXT="indicator"/>
+        <INDEX NAME="indicator" UNIQUE="false" FIELDS="indicator" PREVIOUS="courseid-indicator"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="analytics_indicator" COMMENT="Dummy table for analytics" PREVIOUS="analytics_cache">
