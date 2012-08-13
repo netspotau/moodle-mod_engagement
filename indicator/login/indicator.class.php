@@ -211,7 +211,7 @@ class indicator_login extends indicator {
         }
     }
 
-    public function get_defaults() {
+    public static function get_defaults() {
         $settings = array();
         $settings['e_loginspastweek'] = 2;
         $settings['w_loginspastweek'] = 0.2;
