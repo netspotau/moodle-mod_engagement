@@ -60,7 +60,8 @@ class analyticsindicator_forum_thresholds_form {
             $mform->setDefault("forum_w_$element", $defaults["w_$element"]*100);
 
             $grouparray[] =& $mform->createElement('static', '', '', '%');
-            $mform->addGroup($grouparray, "group_forum_$element", get_string("e_$element", "analyticsindicator_forum"), '&nbsp;', false);
+            $mform->addGroup($grouparray, "group_forum_$element", get_string("e_$element", "analyticsindicator_forum"), '&nbsp;',
+                false);
         }
     }
 }

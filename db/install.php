@@ -17,6 +17,6 @@
 function xmldb_analytics_install() {
     global $DB;
 
-    /// Disable this module by default
+    // Disable this module by default.
     $DB->set_field('modules', 'visible', 0, array('name' => 'analytics'));
 }

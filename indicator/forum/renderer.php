@@ -25,4 +25,29 @@
 defined('MOODLE_INTERNAL') || die();
 
 class analyticsindicator_forum_renderer extends analyticsindicator_renderer {
+    public function user_report($data) {
+        $html = '';
+        foreach ($data->info as $i) {
+            $html .= html_writer::start_tag('strong');
+            $html .= html_writer::tag('span', $i->title);
+            $html .= html_writer::end_tag('strong');
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('weighting', 'analyticsindicator_forum');
+            $html .= html_writer::tag('span', 'Weighting: ' . $i->weighting);
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('localrisk', 'analyticsindicator_forum');
+            $html .= html_writer::tag('span', 'Local risk: ' . $i->localrisk);
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('riskcontribution', 'analyticsindicator_forum');
+            $html .= html_writer::tag('span', 'Risk Contribution: ' .  $i->riskcontribution);
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('logic', 'analyticsindicator_assessment');
+            $html .= html_writer::tag('span', 'Logic: ' .  $i->logic);
+            $html .= html_writer::empty_tag('br');
+            $html .= html_writer::empty_tag('br');
+        }
+        $value = sprintf("%.0f%%", 100 * $data->risk);
+        $html .= html_writer::tag('span', "Risk Score: $value");
+        return $html;
+    }
 }

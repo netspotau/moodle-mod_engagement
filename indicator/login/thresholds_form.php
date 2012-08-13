@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__).'/../indicator.class.php');
+require_once(dirname(__FILE__).'/indicator.class.php');
 
 class analyticsindicator_login_thresholds_form {
 
@@ -37,7 +38,7 @@ class analyticsindicator_login_thresholds_form {
      * @return void
      */
     public function definition_inner(&$mform) {
-
+        $defaults = indicator_login::get_defaults();
         $elements = array('loginspastweek', 'loginsperweek', 'avgsessionlength', 'timesincelast');
         foreach ($elements as $element) {
             $grouparray = array();
@@ -45,9 +46,13 @@ class analyticsindicator_login_thresholds_form {
             $grouparray[] =& $mform->createElement('static', '', '', get_string('weighting', 'report_analytics'));
             $grouparray[] =& $mform->createElement('text', "login_w_$element", '', array('size' => 3));
             $grouparray[] =& $mform->createElement('static', '', '', '%');
-            $mform->addGroup($grouparray, "group_loginspastweek", get_string("e$element", "analyticsindicator_login"), '&nbsp;', false);
+            $mform->addGroup($grouparray, "group_loginspastweek", get_string("e$element", "analyticsindicator_login"), '&nbsp;',
+                false);
+            $mform->setDefault("login_e_$element", $defaults["e_$element"]);
+            $mform->setDefault("login_w_$element", $defaults["w_$element"]);
         }
 
-        $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'analyticsindicator_login'), array('size' => 5));
+        $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'analyticsindicator_login'),
+            array('size' => 5));
     }
 }

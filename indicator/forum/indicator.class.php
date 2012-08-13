@@ -29,15 +29,6 @@ require_once(dirname(__FILE__).'/../indicator.class.php');
 class indicator_forum extends indicator {
     private $currweek;
 
-    public function get_risk($userid, $courseid, $startdate = null, $enddate = null) {
-        return $this->get_risk_for_users($userid, $courseid, $startdate, $enddate);
-    }
-
-    public function get_course_risks($courseid, $startdate = null, $enddate = null) {
-        $users = array_keys(get_enrolled_users(context_course::instance($courseid)));
-        return $this->get_risk_for_users($users, $courseid, $startdate, $enddate);
-    }
-
     /**
      * get_risk_for_users_users
      *
@@ -48,37 +39,20 @@ class indicator_forum extends indicator {
      * @access protected
      * @return array            array of risk values, keyed on userid
      */
-    protected function get_risk_for_users($userids, $courseid, $startdate, $enddate) {
+    protected function get_rawdata($startdate, $enddate) {
         global $DB;
 
-        if (empty($userids)) {
-            //$userids = get_enrolled_users
-            return array();
-        } else if (is_int($userids)) {
-            $userids = array($userids);
-        }
-
-        if ($startdate == null) {
-            $startdate = $DB->get_field('course', 'startdate', array('id' => $courseid));
-        }
-        if ($enddate == null) {
-            $enddate = time();
-        }
-
-        // Get forum posts for each user in userids.
-        list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-        $risks = array();
         $posts = array();
 
-        // Table: mdl_forum_posts, fields: userid, created, discussion, parent
-        // Table: mdl_forum_discussions, fields: userid, course, id
-        // Table: mdl_forum_read, fields: userid, discussionid, postid, firstread
+        // Table: mdl_forum_posts, fields: userid, created, discussion, parent.
+        // Table: mdl_forum_discussions, fields: userid, course, id.
+        // Table: mdl_forum_read, fields: userid, discussionid, postid, firstread.
         $sql = "SELECT p.userid, p.created, p.parent
                 FROM {forum_posts} p
                 JOIN {forum_discussions} d ON (d.id = p.discussion)
-                WHERE d.course = :courseid AND p.userid $insql
+                WHERE d.course = :courseid
                     AND p.created > :startdate AND p.created < :enddate";
-        $params['courseid'] = $courseid;
+        $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
         if ($postrecs = $DB->get_records_sql($sql, $params)) {
@@ -109,9 +83,9 @@ class indicator_forum extends indicator {
         $sql = "SELECT *
                 FROM {forum_read} fr
                 JOIN {forum_discussions} d ON (d.id = fr.discussionid)
-                WHERE d.course = :courseid AND fr.userid $insql
+                WHERE d.course = :courseid
                     AND fr.firstread > :startdate AND fr.firstread < :enddate";
-        $params['courseid'] = $courseid;
+        $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
         if ($readposts = $DB->get_records_sql($sql, $params)) {
@@ -123,22 +97,94 @@ class indicator_forum extends indicator {
             }
         }
 
-        $startweek = date('W', $startdate);
+        $rawdata = new stdClass();
+        $rawdata->posts = $posts;
+        return $rawdata;
+    }
+
+    protected function calculate_risks(array $userids) {
+        $risks = array();
+
+        $strtotalposts = get_string('e_totalposts', 'analyticsindicator_forum');
+        $strreplies = get_string('e_replies', 'analyticsindicator_forum');
+        $strreadposts = get_string('e_readposts', 'analyticsindicator_forum');
+        $strnewposts = get_string('e_newposts', 'analyticsindicator_forum');
+        $strmaxrisktitle = get_string('maxrisktitle', 'analyticsindicator_forum');
+
+        $startweek = date('W', $this->startdate);
         $this->currweek = date('W') - $startweek + 1;
         foreach ($userids as $userid) {
-            if (!isset($posts[$userid])) {
+            $risk = 0;
+            $reasons = array();
+            if (!isset($this->rawdata->posts[$userid])) {
                 // Max risk.
-                $risks[$userid] = 1.0 * ($this->config['w_totalposts'] +
-                                         $this->config['w_replies'] +
-                                         $this->config['w_newposts'] +
-                                         $this->config['w_readposts']);
+                $info = new stdClass();
+                $info->risk = 1.0 * ($this->config['w_totalposts'] +
+                                               $this->config['w_replies'] +
+                                               $this->config['w_newposts'] +
+                                               $this->config['w_readposts']);
+                $reason = new stdClass();
+                $reason->weighting = '100%';
+                $reason->localrisk = '100%';
+                $reason->logic = "This user has never made a post or had tracked read posts in the ".
+                                 "course and so is at the maximum 100% risk.";
+                $reason->riskcontribution = '100%';
+                $reason->title = $strmaxrisktitle;
+                $info->info = array($reason);
+                $risks[$userid] = $info;
                 continue;
             }
 
-            $risks[$userid] = $this->calculate('totalposts', $posts[$userid]['total']);
-            $risks[$userid] += $this->calculate('replies', $posts[$userid]['replies']);
-            $risks[$userid] += $this->calculate('newposts', $posts[$userid]['new']);
-            $risks[$userid] += $this->calculate('readposts', $posts[$userid]['read']);
+            $local_risk = $this->calculate('totalposts', $this->rawdata->posts[$userid]['total']);
+            $risk_contribution = $local_risk * $this->config['w_totalposts'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_totalposts']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for more than {$this->config['no_totalposts']} posts a week. ".
+                             "100% for {$this->config['max_totalposts']} posts a week.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strtotalposts;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
+
+            $local_risk += $this->calculate('replies', $this->rawdata->posts[$userid]['replies']);
+            $risk_contribution = $local_risk * $this->config['w_replies'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_replies']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for more than {$this->config['no_replies']} replies a week. ".
+                             "100% for {$this->config['max_replies']} replies a week.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strreplies;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
+
+            $local_risk += $this->calculate('newposts', $this->rawdata->posts[$userid]['new']);
+            $risk_contribution = $local_risk * $this->config['w_newposts'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_newposts']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for more than {$this->config['no_newposts']} replies a week. ".
+                             "100% for {$this->config['max_newposts']} new posts a week.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strreplies;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
+
+            $local_risk += $this->calculate('readposts', $this->rawdata->posts[$userid]['read']);
+            $risk_contribution = $local_risk * $this->config['w_readposts'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_readposts']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for more than {$this->config['no_readposts']} read posts a week. ".
+                             "100% for {$this->config['max_readposts']} read posts a week.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strreplies;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
+
+            $risks[$userid]->risk = $risk;
+            $risks[$userid]->info = $reasons;
         }
 
         return $risks;
@@ -182,7 +228,7 @@ class indicator_forum extends indicator {
         $settings['no_totalposts'] = 1;
         $settings['no_replies'] = 1;
         $settings['no_newposts'] = 0.5;
-        $settings['no_readposts'] = 1; // 100%
+        $settings['no_readposts'] = 1; // 100%.
 
         $settings['max_totalposts'] = 0;
         $settings['max_replies'] = 0;

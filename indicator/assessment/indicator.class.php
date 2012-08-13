@@ -18,6 +18,7 @@
  * This file defines a class with assessment indicator logic
  *
  * @package    analyticsindicator_assessment
+ * @author     Ashley Holman <ashley.holman@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,21 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__).'/../indicator.class.php');
+require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 class indicator_assessment extends indicator {
-    public function __construct() {
-        $this->calculator = new AssessmentRiskCalculator;
-    }
-
-    public function get_risk($userid, $courseid, $startdate = null, $enddate = null) {
-        return $this->get_risk_for_users($userid, $courseid, $startdate, $enddate);
-    }
-
-    public function get_course_risks($courseid, $startdate = null, $enddate = null) {
-        $users = array_keys(get_enrolled_users(context_course::instance($courseid)));
-        return $this->get_risk_for_users($users, $courseid, $startdate, $enddate);
-    }
-
     /**
      * get_risk_for_users_users
      *
@@ -50,123 +39,181 @@ class indicator_assessment extends indicator {
      * @access protected
      * @return array            array of risk values, keyed on userid
      */
-    protected function get_risk_for_users($userids, $courseid, $startdate, $enddate) {
+    protected function get_rawdata($ignored_startdate, $ignored_enddate) {
         global $DB;
 
-        if (empty($userids)) {
-            return array();
-        } else if (is_int($userids)) {
-            $userids = array($userids);
-        }
+        $this->calculator = new assessment_risk_calculator;
 
-        if ($startdate == null) {
-            $startdate = $DB->get_field('course', 'startdate', array('id' => $courseid));
-        }
-        if ($enddate == null) {
-            $enddate = time();
-        }
+        $rawdata = new stdClass();
+        $rawdata->sumgrades = 0;
 
-        $settings = $this->get_settings();
-
-        $risks = array();
-
-        $sumgrades = 0;
         $activities = array();
         $grade_items = $DB->get_records_sql("
             SELECT      id, itemtype, itemmodule, iteminstance, grademax
             FROM        {grade_items}
             WHERE       courseid=?
-        ", array($courseid));
+        ", array($this->courseid));
         foreach ($grade_items as $gi) {
-          if (in_array($gi->itemtype, array('mod', 'manual'))) {
-            $sumgrades += $gi->grademax;
-            if ($gi->itemtype == 'mod') {
-              $activities[$gi->itemmodule][] = $gi;
+            if (in_array($gi->itemtype, array('mod', 'manual'))) {
+                $rawdata->sumgrades += $gi->grademax;
+                if ($gi->itemtype == 'mod') {
+                    $activities[$gi->itemmodule][] = $gi;
+                }
             }
-          }
         }
 
         foreach ($activities as $mod => $items) {
-          switch ($mod) {
-              case 'assignment':
-                $this->add_assignments($items);
-                break;
-              case 'quiz':
-                $this->add_quizzes($items);
-                break;
-          }
+            switch ($mod) {
+                case 'assignment':
+                    $this->add_assignments($items);
+                    break;
+                case 'quiz':
+                    $this->add_quizzes($items);
+                    break;
+            }
         }
 
-        return $this->calculator->getRisks($userids, $sumgrades, $settings);
+        $rawdata->assessments = $this->calculator->as_object();
+        return $rawdata;
+    }
+
+    public function calculate_risks(array $userids) {
+        // If we've already got a calculator, it means get_rawdata() was called...
+        // ...so don't bother reloading the raw data.
+        if (!isset($this->calculator)) {
+            $this->calculator = new assessment_risk_calculator($this->rawdata->assessments);
+        }
+        return $this->calculator->get_risks($userids, $this->rawdata->sumgrades, $this->config);
     }
 
     private function add_assignments($grade_items) {
-      global $DB;
+        global $DB;
 
-      $submissions = array();
-      foreach ($grade_items as $gi) {
-        $assignment_ids[$gi->iteminstance] = $gi;
-        $submissions[$gi->iteminstance] = array();
-      }
-      list($insql, $params) = $DB->get_in_or_equal(array_keys($assignment_ids));
-      $assignments = $DB->get_records_sql("
-          SELECT        id, timedue
-          FROM          {assignment}
-          WHERE         id $insql
-            AND         assignmenttype != 'offline'
-      ", $params);
-      # collect up the submissions
-      $subs = $DB->get_records_sql("
-          SELECT        sub.id, sub.assignment, sub.userid, sub.timemodified
+        $submissions = array();
+        foreach ($grade_items as $gi) {
+            $assignment_ids[$gi->iteminstance] = $gi;
+            $submissions[$gi->iteminstance] = array();
+        }
+        list($insql, $params) = $DB->get_in_or_equal(array_keys($assignment_ids));
+        $sql = "SELECT        id, timedue, name
+                FROM          {assignment}
+                WHERE         id $insql
+                    AND       assignmenttype != 'offline'";
+        $assignments = $DB->get_records_sql($sql, $params);
+        // Collect up the submissions.
+        $subs = $DB->get_records_sql("
+          SELECT        sub.id, sub.assignment, sub.userid, sub.timemodified, a.timedue
           FROM          {assignment_submissions} sub, {assignment} a
           WHERE         a.id = sub.assignment
             AND         assignment $insql
             AND         (    (assignmenttype = 'upload' AND data2 = 'submitted')
                           OR (assignmenttype IN ('uploadsingle', 'online')))
-      ", $params);
-      foreach ($subs as $s) {
-          $submissions[$s->assignment][$s->userid] = $s->timemodified;
-      }
-      # finally add the assessment details into the calculator
-      foreach ($assignments as $a) {
-        $grademax = $assignment_ids[$a->id]->grademax;
-        $this->calculator->addAssessment($grademax, $a->timedue, $submissions[$a->id]);
-      }
+        ", $params);
+        foreach ($subs as $s) {
+            $submissions[$s->assignment][$s->userid]['submitted'] = $s->timemodified;
+            $submissions[$s->assignment][$s->userid]['due'] = $s->timedue;
+        }
+        // Finally add the assessment details into the calculator.
+        foreach ($assignments as $a) {
+            $grademax = $assignment_ids[$a->id]->grademax;
+            $this->calculator->add_assessment($grademax, $submissions[$a->id], "Assignment: {$a->name}");
+        }
     }
 
     private function add_quizzes($grade_items) {
-      global $DB;
+        global $DB;
 
-      $submissions = array();
-      foreach ($grade_items as $gi) {
-          $quiz_ids[$gi->iteminstance] = $gi;
-          $submissions[$gi->iteminstance] = array();
-      }
-      list($insql, $params) = $DB->get_in_or_equal(array_keys($quiz_ids));
-      $quizzes = $DB->get_records_sql("
-          SELECT      id, timeclose
-          FROM        {quiz}
-          WHERE       id $insql
-      ", $params);
-      # collect up the attempts
-      $attempts = $DB->get_records_sql("
-          SELECT        id, quiz, userid, timefinish
-          FROM          {quiz_attempts}
-          WHERE         quiz $insql
-            AND         timefinish > 0
-            AND         preview = 0
-      ", $params);
-      foreach ($attempts as $a) {
-        $submissions[$a->quiz][$a->userid] = $a->timefinish;
-      }
-      foreach ($quizzes as $q) {
-        $grademax = $quiz_ids[$q->id]->grademax;
-        $this->calculator->addAssessment($grademax, $q->timeclose, $submissions[$q->id]);
-      }
+        $submissions = array();
+        foreach ($grade_items as $gi) {
+            $quiz_ids[$gi->iteminstance] = $gi;
+            $submissions[$gi->iteminstance] = array();
+        }
+        list($insql, $params) = $DB->get_in_or_equal(array_keys($quiz_ids));
+        $quizzes = $DB->get_records_sql("
+            SELECT      id, timeclose, name
+            FROM        {quiz}
+            WHERE       id $insql
+        ", $params);
+        // Collect up the attempts.
+        $attempts = $DB->get_records_sql("
+            SELECT        qa.id, q.id as quiz, q.course, qa.userid, qa.timefinish, q.timeclose
+            FROM          {quiz_attempts} qa
+            JOIN          {quiz} q ON (q.id = qa.quiz)
+            WHERE         q.id $insql
+                AND         qa.timefinish > 0
+                AND         qa.preview = 0
+        ", $params);
+        // Get list of user overrides.
+        $overrides = $DB->get_records_sql("
+            SELECT        userid, groupid, timeclose, quiz
+            FROM          {quiz_overrides}
+            WHERE         quiz $insql
+                AND         timeclose is not null
+        ", $params);
+        $group_overrides = array();
+        foreach ($overrides as $o) {
+            if (isset($o->userid)) {
+                $submissions[$o->quiz][$o->userid]['due'] = $o->timeclose;
+                $submissions[$o->quiz][$o->userid]['override'] = 'user';
+            } else if (isset($o->groupid)) {
+                $group_overrides[$o->groupid][$o->quiz] = $o->timeclose;
+            }
+        }
+        // Get list of students in overriden groups.
+        list ($insql, $params) = $DB->get_in_or_equal(array_keys($group_overrides));
+        $group_members = $DB->get_records_sql("
+            SELECT        id, groupid, userid
+            FROM          {groups_members}
+            WHERE         groupid $insql
+        ", $params);
+        $groups = array();
+        foreach ($group_members as $gm) {
+            $groups[$gm->groupid][] = $gm->userid;
+        }
+
+        // Update submissions based on group overrides.
+        foreach ($group_overrides as $gid => $override_quizzes) {
+            if (!isset($groups[$gid])) {
+                continue;
+            }
+            foreach ($override_quizzes as $qid => $timeclose) {
+                foreach ($groups[$gid] as $uid) {
+                    if (!isset($submissions[$qid][$uid])) {
+                        // Only set the group override if there wasn't a user-level override.
+                        $submissions[$qid][$uid]['due'] = $timeclose;
+                        $submissions[$qid][$uid]['override'] = 'group';
+                    }
+                }
+            }
+        }
+        foreach ($attempts as $a) {
+            $submissions[$a->quiz][$a->userid]['submitted'] = $a->timefinish;
+            if (!isset($submissions[$a->quiz][$a->userid]['due'])) {
+                // Only set timeclose if there wasn't an override in place.
+                $submissions[$a->quiz][$a->userid]['due'] = $a->timeclose;
+            }
+        }
+        foreach ($quizzes as $q) {
+            $grademax = $quiz_ids[$q->id]->grademax;
+            // Process user overrides for this quiz.
+
+            $this->calculator->add_assessment($grademax, $submissions[$q->id], 'Quiz: ' . $q->name);
+        }
     }
 
-    public function get_settings() {
-        //TODO: CONFIG THESE!
+    protected function load_config() {
+        parent::load_config();
+        $defaults = $this->get_defaults();
+        foreach ($defaults as $setting => $value) {
+            if (!isset($this->config[$setting])) {
+                $this->config[$setting] = $value;
+            } else if (strpos($setting, 'weighting') !== false) {
+                $this->config[$setting] = $this->config[$setting] / 100;
+            }
+        }
+    }
+
+    public static function get_defaults() {
         $settings = array();
         $settings['overduegracedays'] = 0;
         $settings['overduemaximumdays'] = 14;
@@ -178,41 +225,83 @@ class indicator_assessment extends indicator {
     }
 }
 
-class AssessmentRiskCalculator {
-    // generic list of assessed activities
+class assessment_risk_calculator {
+    // Generic list of assessed activities.
     private $assessments = array();
 
-    // <submissions> = array( <uid> => tstamp, ...);
-    public function addAssessment($maxscore, $duedate, $submissions) {
-      $a = new stdClass;
-      $a->maxscore = $maxscore;
-      $a->due = $duedate;
-      $a->submissions = $submissions;
-      $this->assessments[] = $a;
+
+    public function __construct($from_object = null) {
+        $this->assessments = $from_object;
     }
 
-    public function getRisks($uids, $totalAssessmentValue, $settings) {
-      $risks = array();
+    public function add_assessment($maxscore, $submissions, $description) {
+        $a = new stdClass;
+        $a->maxscore = $maxscore;
+        $a->submissions = $submissions;
+        $a->description = $description;
+        $this->assessments[] = $a;
+    }
 
-      foreach ($uids as $uid) {
-          $risk = 0;
-          foreach ($this->assessments as $a) {
-              $submittime = isset($a->submissions[$uid]) ? $a->submissions[$uid] : PHP_INT_MAX;
-              $numDaysLate = ($submittime - $a->due) / 86400;
-              $daysLateWeighting = ($numDaysLate - $settings['overduegracedays']) /
-                                   ($settings['overduemaximumdays'] - $settings['overduegracedays']);
-              $daysLateWeighting = max(0, min(1, $daysLateWeighting));
-              $assessmentValueWeighting = $a->maxscore / $totalAssessmentValue;
-              if (isset($a->submissions[$uid])) {
-                // assessment was submitted
-                $risk += $daysLateWeighting * $assessmentValueWeighting * $settings['overduesubmittedweighting'];
-              } else {
-                $risk += $daysLateWeighting * $assessmentValueWeighting * $settings['overduenotsubmittedweighting'];
-              }
-          }
-          $risks[$uid] = $risk;
-      }
+    public function get_risks($uids, $total_assessment_value, $settings) {
+        $risks = array();
+        if (empty($this->assessments)) {
+            // Course doesn't have any assessable material.
+            $this->assessments = array();
+        }
+        foreach ($uids as $uid) {
+            $risk = 0;
+            $reasons = array();
+            $gp = $settings['overduegracedays'];
+            $md = $settings['overduemaximumdays'];
+            foreach ($this->assessments as $a) {
+                $reason = new stdClass();
+                $reason->assessment = $a->description;
+                $submittime = isset($a->submissions[$uid]['submitted']) ? $a->submissions[$uid]['submitted'] : PHP_INT_MAX;
+                $timedue = isset($a->submissions[$uid]['due']) ? $a->submissions[$uid]['due'] : 1;
+                $num_days_late = ($submittime - $timedue) / 86400;
+                $days_late_weighting = ($num_days_late - $settings['overduegracedays']) /
+                                     ($settings['overduemaximumdays'] - $settings['overduegracedays']);
+                $days_late_weighting = max(0, min(1, $days_late_weighting));
+                $assessment_value_weighting = $a->maxscore / $total_assessment_value;
+                $reason->assessmentweighting = intval($assessment_value_weighting*100) . '%';
+                if (isset($a->submissions[$uid]['submitted'])) {
+                    // Assessment was submitted.
+                    $attime = date("d-m-Y H:i", $submittime);
+                    $reason->submitted = "submitted $attime.";
+                    if ($num_days_late > 0) {
+                        $reason->dayslate = round($num_days_late, 2);
+                    }
+                    $local_risk = $days_late_weighting * $settings['overduesubmittedweighting'];
+                    $risk_contribution = $assessment_value_weighting * $local_risk;
+                    $risk += $risk_contribution;
+                    $reason->riskcontribution = intval($risk_contribution*100).'%';
+                    $reason->localrisk = intval($local_risk*100).'%';
+                    $mr = intval($settings['overduesubmittedweighting'] * 100);
+                    $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
+                } else {
+                    $reason->submitted = "not submitted.";
+                    $local_risk = $days_late_weighting * $settings['overduenotsubmittedweighting'];
+                    $risk_contribution = $assessment_value_weighting * $local_risk;
+                    $risk += $risk_contribution;
+                    $reason->riskcontribution = intval($risk_contribution*100).'%';
+                    $reason->localrisk = intval($local_risk*100).'%';
+                    $mr = intval($settings['overduenotsubmittedweighting'] * 100);
+                    $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
+                }
+                if (isset($a->submissions[$uid]['override'])) {
+                    $reason->override = $a->submissions[$uid]['override'];
+                }
+                $reasons[] = $reason;
+            }
+            $risks[$uid] = new stdClass();
+            $risks[$uid]->risk = $risk;
+            $risks[$uid]->info = $reasons;
+        }
 
-      return $risks;
+        return $risks;
+    }
+
+    public function as_object() {
+        return $this->assessments;
     }
 }

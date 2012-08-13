@@ -25,4 +25,40 @@
 defined('MOODLE_INTERNAL') || die();
 
 class analyticsindicator_assessment_renderer extends analyticsindicator_renderer {
+    public function user_report($data) {
+        $html = '';
+        foreach ($data->info as $i) {
+            $html .= html_writer::start_tag('strong');
+            $html .= html_writer::tag('span', $i->assessment);
+            $html .= html_writer::end_tag('strong');
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('status', 'analyticsindicator_assessment');
+            $html .= html_writer::tag('span', 'Status: ' . $i->submitted);
+            if (isset($i->override)) {
+                $html .= html_writer::empty_tag('br');
+                $html .= $this->output->help_icon('override', 'analyticsindicator_assessment');
+                $html .= html_writer::tag('span', 'Override: A ' . $i->override . ' override on due date is in place.');
+            }
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('weighting', 'analyticsindicator_assessment');
+            $html .= html_writer::tag('span', 'Weighting: ' . $i->assessmentweighting);
+            if (isset($i->dayslate)) {
+                $html .= html_writer::empty_tag('br');
+                $html .= $this->output->help_icon('dayslate', 'analyticsindicator_assessment');
+                $html .= html_writer::tag('span', 'Days late: ' .  $i->dayslate);
+            }
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('localrisk', 'analyticsindicator_assessment');
+            $html .= html_writer::tag('span', 'Local risk: ' . $i->localrisk);
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('riskcontribution', 'analyticsindicator_assessment');
+            $html .= html_writer::tag('span', 'Risk Contribution: ' .  $i->riskcontribution);
+            $html .= html_writer::empty_tag('br');
+            $html .= $this->output->help_icon('logic', 'analyticsindicator_assessment');
+            $html .= html_writer::tag('span', 'Logic: ' .  $i->logic);
+            $html .= html_writer::empty_tag('br');
+            $html .= html_writer::empty_tag('br');
+        }
+        return $html;
+    }
 }

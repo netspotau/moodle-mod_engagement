@@ -33,7 +33,8 @@ require_once($CFG->dirroot . '/report/analytics/locallib.php');
 
 abstract class analyticsindicator_renderer extends plugin_renderer_base {
     public function user_report($data) {
-        $html = html_writer::tag('span', "Risk Score: ".($data['risk']*100)."%");
+        $value = sprintf("%.0f%%", 100 * $data->risk);
+        $html = html_writer::tag('span', "Risk Score: $value");
         return $html;
     }
 }

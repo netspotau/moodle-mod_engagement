@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file defines functions used for the login indicator
+ * This file defines functions used for the assessment indicator
  *
- * @package    analyticsindicator_login
+ * @package    analyticsindicator_assessment
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,20 +31,12 @@ defined('MOODLE_INTERNAL') || die();
  * @param array $data
  * @return array
  */
-function analyticsindicator_login_process_edit_form($data) {
+function analyticsindicator_assessment_process_edit_form($data) {
     $configdata = array();
-    $elements = array('loginspastweek', 'loginsperweek', 'avgsessionlength', 'timesincelast');
-    foreach ($elements as $element) {
-        if (isset($data->{"login_e_$element"})) {
-            $configdata["login_e_$element"] = $data->{"login_e_$element"};
-        }
-        if (isset($data->{"login_w_$element"})) {
-            $configdata["login_w_$element"] = $data->{"login_w_$element"};
-        }
-    }
-    if (isset($data->{"login_session_length"})) {
-        $configdata["login_session_length"] = $data->{"login_session_length"};
-    }
+    $configdata['assessment_overduegracedays'] = $data->assessment_overduegracedays;
+    $configdata['assessment_overduemaximumdays'] = $data->assessment_overduemaximumdays;
+    $configdata['assessment_overduesubmittedweighting'] = $data->assessment_overduesubmittedweighting;
+    $configdata['assessment_overduenotsubmittedweighting'] = $data->assessment_overduenotsubmittedweighting;
 
     return $configdata;
 }

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,5 +28,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version  = 2012033000;
-$plugin->requires = 2011110200;  // Requires this Moodle version
+$plugin->requires = 2011110200;  // Requires this Moodle version.
 $plugin->component = 'analyticsindicator_assessment';

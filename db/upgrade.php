@@ -33,4 +33,15 @@ function xmldb_analytics_upgrade($oldversion) {
         }
         upgrade_mod_savepoint(true, 2012061900, 'analytics');
     }
+
+    if ($oldversion < 2012080700) {
+        $table = new xmldb_table('analytics_cache');
+        $field = new xmldb_field('rawdata');
+        $field->set_attributes(XMLDB_TYPE_TEXT, 'big', null, null, null, null, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field, 'settings');
+        }
+
+        upgrade_mod_savepoint(true, 2012080700, 'analytics');
+    }
 }

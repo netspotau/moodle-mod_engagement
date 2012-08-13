@@ -27,55 +27,30 @@ defined('MOODLE_INTERNAL') || die();
 require_once(dirname(__FILE__).'/../indicator.class.php');
 
 class indicator_login extends indicator {
-    public function get_risk($userid, $courseid, $startdate = null, $enddate = null) {
-        return $this->get_risk_for_users($userid, $courseid, $startdate, $enddate);
-    }
-
-    public function get_course_risks($courseid, $startdate = null, $enddate = null) {
-        $users = array_keys(get_enrolled_users(context_course::instance($courseid)));
-        return $this->get_risk_for_users($users, $courseid, $startdate, $enddate);
-    }
 
     /**
-     * get_risk_for_users_users
+     * get_rawdata
      *
-     * @param mixed $userid     if userid is null, return risks for all users
-     * @param mixed $courseid
-     * @param mixed $startdate
-     * @param mixed $enddate
+     * @param int $startdate
+     * @param int $enddate
      * @access protected
      * @return array            array of risk values, keyed on userid
      */
-    protected function get_risk_for_users($userids, $courseid, $startdate, $enddate) {
+    protected function get_rawdata($startdate, $enddate) {
         global $DB;
 
-        if (empty($userids)) {
-            //$userids = get_enrolled_users
-            return array();
-        } else if (is_int($userids)) {
-            $userids = array($userids);
-        }
-
-        if ($startdate == null) {
-            $startdate = $DB->get_field('course', 'startdate', array('id' => $courseid));
-        }
-        if ($enddate == null) {
-            $enddate = time();
-        }
-
-        $risks = array();
         $sessions = array();
 
-        list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-        $params['courseid'] = $courseid;
+        $params = array();
+        $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
         $sql = "SELECT id, userid, time
                 FROM {log}
-                WHERE course = :courseid AND userid $insql AND time >= :startdate AND time <= :enddate
+                WHERE course = :courseid AND time >= :startdate AND time <= :enddate
                 ORDER BY time ASC";
         if ($logs = $DB->get_records_sql($sql, $params)) {
-            //need to calculate sessions, sessions are defined by time between consequtive logs not exceeding setting
+            // Need to calculate sessions, sessions are defined by time between consequtive logs not exceeding setting.
             foreach ($logs as $log) {
                 $increment = false;
                 $week = date('W', $log->time);
@@ -103,7 +78,7 @@ class indicator_login extends indicator {
                     }
                     $sessions[$log->userid]['weeks'][$week]++;
 
-                    if ($log->time > ($enddate - 7*24*60*60)) { //session in past week
+                    if ($log->time > ($enddate - 7*24*60*60)) { // Session in past week.
                         $sessions[$log->userid]['pastweek']++;
                     }
                 }
@@ -111,46 +86,116 @@ class indicator_login extends indicator {
             }
         }
 
+        return $sessions;
+    }
+
+    private static function calculate_risk($actual, $expected) {
+        $risk = 0;
+        if ($actual < $expected) {
+            $risk += ($expected - $actual) / $expected;
+        }
+        return $risk;
+    }
+
+    protected function calculate_risks(array $userids) {
+        $risks = array();
+        $sessions = $this->rawdata;
+
+        $strloginspastweek = get_string('eloginspastweek', 'analyticsindicator_login');
+        $strloginsperweek = get_string('eloginsperweek', 'analyticsindicator_login');
+        $stravgsessionlength = get_string('eavgsessionlength', 'analyticsindicator_login');
+        $strtimesincelast = get_string('etimesincelast', 'analyticsindicator_login');
+        $strmaxrisktitle = get_string('maxrisktitle', 'analyticsindicator_login');
+
         foreach ($userids as $userid) {
             $risk = 0;
+            $reasons = array();
 
             if (!isset($sessions[$userid])) {
-                $risks[$userid] = 1.0 * ($this->config['w_loginspastweek'] +
+                $info = new stdClass();
+                $info->risk = 1.0 * ($this->config['w_loginspastweek'] +
                                          $this->config['w_avgsessionlength'] +
                                          $this->config['w_loginsperweek'] +
                                          $this->config['w_timesincelast']);
+                $reason = new stdClass();
+                $reason->weighting = '100%';
+                $reason->localrisk = '100%';
+                $reason->logic = "This user has never logged into the course and so is at the maximum 100% risk.";
+                $reason->riskcontribution = '100%';
+                $reason->title = $strmaxrisktitle;
+                $info->info = array($reason);
+                $risks[$userid] = $info;
                 continue;
             }
 
-            //logins past week
-            $risk += self::calculate_risk($sessions[$userid]['pastweek'], $this->config['e_loginspastweek'],
-                                          $this->config['w_loginspastweek']);
+            // Logins past week.
+            $local_risk = self::calculate_risk($sessions[$userid]['pastweek'], $this->config['e_loginspastweek']);
+            $risk_contribution = $local_risk * $this->config['w_loginspastweek'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_loginspastweek']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for more than {$this->config['e_loginspastweek']} logins a week. ".
+                             "100% for 0 logins in the past week.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strloginspastweek;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
 
-            //average session length
+            // Average session length.
             if (($count = count($sessions[$userid]['lengths'])) > 0) {
                 $average = array_sum($sessions[$userid]['lengths']) / $count;
             } else {
                 $average = 0;
             }
-            $risk += self::calculate_risk($average, $this->config['e_avgsessionlength'],
-                                          $this->config['w_avgsessionlength']);
+            $local_risk = self::calculate_risk($average, $this->config['e_avgsessionlength']);
+            $risk_contribution = $local_risk * $this->config['w_avgsessionlength'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_avgsessionlength']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for average session length longer than ".
+                             "{$this->config['e_avgsessionlength']} seconds. 100% for session length of 0.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $stravgsessionlength;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
 
-            //logins per week
+            // Logins per week.
             if (($count = count($sessions[$userid]['weeks'])) > 0) {
                 $average = array_sum($sessions[$userid]['weeks']) / $count;
             } else {
                 $average = 0;
             }
-            $risk += self::calculate_risk($average, $this->config['e_loginsperweek'], $this->config['w_loginsperweek']);
+            $local_risk = self::calculate_risk($average, $this->config['e_loginsperweek']);
+            $risk_contribution = $local_risk * $this->config['w_loginsperweek'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_loginsperweek']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for logging in to the course >= {$this->config['e_loginsperweek']} ".
+                             "times a week. 100% risk for 0 logins a week.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strloginsperweek;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
 
-            //time since last login
+            // Time since last login.
             $timediff = time() - $sessions[$userid]['lastlogin'];
-            $risk += self::calculate_risk($this->config['e_timesincelast'], $timediff,
-                                          $this->config['w_timesincelast']);
+            $local_risk = self::calculate_risk($this->config['e_timesincelast'], $timediff);
+            $risk_contribution = $local_risk * $this->config['w_timesincelast'];
+            $reason = new stdClass();
+            $reason->weighting = intval($this->config['w_timesincelast']*100).'%';
+            $reason->localrisk = intval($local_risk*100).'%';
+            $reason->logic = "0% risk for last login to the course having just happened. ".
+                             "Scaling to the max 100% risk after ".($this->config['e_timesincelast']/86400)." days.";
+            $reason->riskcontribution = intval($risk_contribution*100).'%';
+            $reason->title = $strtimesincelast;
+            $reasons[] = $reason;
+            $risk += $risk_contribution;
 
-            $risks[$userid] = $risk;
+            $info = new stdClass();
+            $info->risk = $risk;
+            $info->info = $reasons;
+            $risks[$userid] = $info;
         }
-
         return $risks;
     }
 
@@ -177,10 +222,10 @@ class indicator_login extends indicator {
         $settings['e_avgsessionlength'] = 10*60;
         $settings['w_avgsessionlength'] = 0.1;
 
-        $settings['e_timesincelast'] = 7*24*60*60; //1 week
+        $settings['e_timesincelast'] = 7*24*60*60; // 1 week.
         $settings['w_timesincelast'] = 0.4;
 
-        $settings['session_length'] = 60*60; //1 hour
+        $settings['session_length'] = 60*60; // 1 hour.
         return $settings;
     }
 }

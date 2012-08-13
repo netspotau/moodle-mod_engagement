@@ -17,14 +17,13 @@
 /**
  * Version info
  *
- * @package    mod
- * @subpackage analytics
+ * @package    mod_analytics
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$module->version   = 2012061900;       // The current plugin version (Date: YYYYMMDDXX)
+$module->version   = 2012080700;       // The current plugin version (Date: YYYYMMDDXX)
 $module->requires  = 2011110200;       // Requires this Moodle version
-$module->component = 'mod_analytics'; // Full name of the plugin (used for diagnostics)
+$module->component = 'mod_analytics'; // Full name of the plugin (used for diagnostics).
