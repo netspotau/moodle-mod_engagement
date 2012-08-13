@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['analytics:addinstance'] = 'Add an analytics instance'; // This should never appear. This mod is a container for sub-plugins.
 $string['cachettl'] = 'Cache TTL';
 $string['cachingdisabled'] = 'Caching Disabled';
 $string['configcachettl'] = 'This setting specifies the Time To Live for cached
