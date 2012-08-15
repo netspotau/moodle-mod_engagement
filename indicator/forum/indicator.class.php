@@ -167,7 +167,7 @@ class indicator_forum extends indicator {
             $reason->logic = "0% risk for more than {$this->config['no_newposts']} replies a week. ".
                              "100% for {$this->config['max_newposts']} new posts a week.";
             $reason->riskcontribution = intval($risk_contribution*100).'%';
-            $reason->title = $strreplies;
+            $reason->title = $strnewposts;
             $reasons[] = $reason;
             $risk += $risk_contribution;
 
@@ -179,7 +179,7 @@ class indicator_forum extends indicator {
             $reason->logic = "0% risk for more than {$this->config['no_readposts']} read posts a week. ".
                              "100% for {$this->config['max_readposts']} read posts a week.";
             $reason->riskcontribution = intval($risk_contribution*100).'%';
-            $reason->title = $strreplies;
+            $reason->title = $strreadposts;
             $reasons[] = $reason;
             $risk += $risk_contribution;
 
