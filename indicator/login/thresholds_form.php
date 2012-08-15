@@ -49,10 +49,11 @@ class engagementindicator_login_thresholds_form {
             $mform->addGroup($grouparray, "group_loginspastweek", get_string("e$element", "engagementindicator_login"), '&nbsp;',
                 false);
             $mform->setDefault("login_e_$element", $defaults["e_$element"]);
-            $mform->setDefault("login_w_$element", $defaults["w_$element"]);
+            $mform->setDefault("login_w_$element", $defaults["w_$element"]*100);
         }
 
         $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'engagementindicator_login'),
             array('size' => 5));
+        $mform->setDefault("login_session_length", $defaults["session_length"]);
     }
 }
