@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of analytics indicator subplugin
+ * Defines the version of engagement indicator subplugin
  *
  * This code fragment is called by moodle_needs_upgrading() and
  * /admin/index.php
  *
- * @package    analyticsindicator_login
+ * @package    engagementindicator_login
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,4 +29,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version  = 2012033000;
 $plugin->requires = 2011110200;  // Requires this Moodle version.
-$plugin->component = 'analyticsindicator_assessment';
+$plugin->component = 'engagementindicator_assessment';

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/analytics/db" VERSION="20120314" COMMENT="XMLDB file for Moodle mod/analytics"
+<XMLDB PATH="mod/engagement/db" VERSION="20120314" COMMENT="XMLDB file for Moodle mod/engagement"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="analytics" COMMENT="Dummy table for analytics" NEXT="analytics_cache">
+    <TABLE NAME="engagement" COMMENT="Dummy table for engagement" NEXT="engagement_cache">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="name"/>
@@ -20,7 +20,7 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="analytics_cache" COMMENT="Cache of analytics results" PREVIOUS="analytics" NEXT="analytics_indicator">
+    <TABLE NAME="engagement_cache" COMMENT="Cache of engagement results" PREVIOUS="engagement" NEXT="engagement_indicator">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="indicator"/>
         <FIELD NAME="indicator" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="courseid"/>
@@ -38,7 +38,7 @@
         <INDEX NAME="indicator" UNIQUE="false" FIELDS="indicator" PREVIOUS="courseid-indicator"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="analytics_indicator" COMMENT="Dummy table for analytics" PREVIOUS="analytics_cache">
+    <TABLE NAME="engagement_indicator" COMMENT="Dummy table for engagement" PREVIOUS="engagement_cache">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="visible"/>

@@ -17,7 +17,7 @@
 /**
  * Version info
  *
- * @package    mod_analytics
+ * @package    mod_engagement
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die;
 
 $module->version   = 2012080700;       // The current plugin version (Date: YYYYMMDDXX)
 $module->requires  = 2011120500;       // Requires this Moodle version
-$module->component = 'mod_analytics'; // Full name of the plugin (used for diagnostics).
+$module->component = 'mod_engagement'; // Full name of the plugin (used for diagnostics).
 
 $module->maturity = MATURITY_STABLE;

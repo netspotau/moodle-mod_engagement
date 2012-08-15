@@ -36,7 +36,7 @@ abstract class indicator {
         $this->courseid = $courseid;
         $this->context = context_course::instance($courseid);
 
-        if ($record = $DB->get_record('report_analytics', array('course' => $courseid, 'indicator' => self::get_name()))) {
+        if ($record = $DB->get_record('report_engagement', array('course' => $courseid, 'indicator' => self::get_name()))) {
             $this->instance = $record;
         } else {
             $record = new stdClass();
@@ -44,7 +44,7 @@ abstract class indicator {
             $record->indicator = self::get_name();
             $record->weight = 0;
             $record->configdata = null;
-            $DB->insert_record('report_analytics', $record);
+            $DB->insert_record('report_engagement', $record);
             $this->instance = $record;
         }
 
@@ -82,7 +82,7 @@ abstract class indicator {
         global $DB;
 
         // TODO: Move the user list building somewhere static, otherwise its done for every indicator.
-        $pluginconfig = get_config('analytics');
+        $pluginconfig = get_config('engagement');
         if (!isset($pluginconfig->roles)) {
             $roleids = array_keys(get_archetype_roles('student'));
         } else {
@@ -121,7 +121,7 @@ abstract class indicator {
             $this->enddate = time();
         }
 
-        $this->cachettl = get_config('analytics', 'cachettl');
+        $this->cachettl = get_config('engagement', 'cachettl');
         // If caching is enabled and cache data exists, use that, otherwise call function to fetch live.
         if ($this->cachettl && $rawdata = $this->get_cache()) { // TODO: Try to fetch from cache here.
             $this->rawdata = $rawdata;
@@ -141,7 +141,7 @@ abstract class indicator {
         $params = array($this->get_name(), $this->courseid, $this->startdate, time() - $this->cachettl);
         $rawdata = $DB->get_field_sql('
                           SELECT      rawdata
-                          FROM        {analytics_cache}
+                          FROM        {engagement_cache}
                           WHERE       indicator = ?
                             AND       courseid = ?
                             AND       timestart = ?
@@ -163,7 +163,7 @@ abstract class indicator {
         $cacheobj->timeend = $this->enddate;
         $cacheobj->timemodified = time();
         $cacheobj->rawdata = base64_encode(serialize($this->rawdata));
-        return $DB->insert_record('analytics_cache', $cacheobj);
+        return $DB->insert_record('engagement_cache', $cacheobj);
     }
 
     /**
@@ -228,7 +228,7 @@ abstract class indicator {
             $indicatorname = self::get_name();
             $configdata = base64_encode(serialize($this->config));
             $this->instance->configdata = $configdata;
-            $DB->update_record('report_analytics', $this->instance);
+            $DB->update_record('report_engagement', $this->instance);
         }
     }
 }

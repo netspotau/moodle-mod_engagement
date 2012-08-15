@@ -17,7 +17,7 @@
 /**
  * Plugin capabilities
  *
- * @package    mod_analytics
+ * @package    mod_engagement
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-    'mod/analytics:addinstance' => array(
+    'mod/engagement:addinstance' => array(
         'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',

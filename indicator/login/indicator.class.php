@@ -17,7 +17,7 @@
 /**
  * This file defines a class with login indicator logic
  *
- * @package    analyticsindicator_login
+ * @package    engagementindicator_login
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -101,11 +101,11 @@ class indicator_login extends indicator {
         $risks = array();
         $sessions = $this->rawdata;
 
-        $strloginspastweek = get_string('eloginspastweek', 'analyticsindicator_login');
-        $strloginsperweek = get_string('eloginsperweek', 'analyticsindicator_login');
-        $stravgsessionlength = get_string('eavgsessionlength', 'analyticsindicator_login');
-        $strtimesincelast = get_string('etimesincelast', 'analyticsindicator_login');
-        $strmaxrisktitle = get_string('maxrisktitle', 'analyticsindicator_login');
+        $strloginspastweek = get_string('eloginspastweek', 'engagementindicator_login');
+        $strloginsperweek = get_string('eloginsperweek', 'engagementindicator_login');
+        $stravgsessionlength = get_string('eavgsessionlength', 'engagementindicator_login');
+        $strtimesincelast = get_string('etimesincelast', 'engagementindicator_login');
+        $strmaxrisktitle = get_string('maxrisktitle', 'engagementindicator_login');
 
         foreach ($userids as $userid) {
             $risk = 0;

@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Output rendering of analytics report
+ * Output rendering of engagement report
  *
- * @package    mod_analytics
+ * @package    mod_engagement
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,13 +25,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/pluginlib.php');
-require_once($CFG->dirroot . '/report/analytics/locallib.php');
+require_once($CFG->dirroot . '/report/engagement/locallib.php');
 
 /**
- * Rendering methods for the analytics reports
+ * Rendering methods for the engagement reports
  */
 
-abstract class analyticsindicator_renderer extends plugin_renderer_base {
+abstract class engagementindicator_renderer extends plugin_renderer_base {
     public function user_report($data) {
         $value = sprintf("%.0f%%", 100 * $data->risk);
         $html = html_writer::tag('span', "Risk Score: $value");

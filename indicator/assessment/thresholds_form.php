@@ -17,7 +17,7 @@
 /**
  * This file defines a class for the assessment indicator thresholds form
  *
- * @package    analyticsindicator_assessment
+ * @package    engagementindicator_assessment
  * @author     Ashley Holman <ashley@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(dirname(__FILE__).'/../indicator.class.php');
 require_once(dirname(__FILE__).'/indicator.class.php');
 
-class analyticsindicator_assessment_thresholds_form {
+class engagementindicator_assessment_thresholds_form {
 
     /**
      * Define the elements to be displayed in the form
@@ -44,10 +44,10 @@ class analyticsindicator_assessment_thresholds_form {
         $elements = array('newposts', 'readposts', 'replies', 'totalposts');
         $grouparray = array();
         $mform->addElement('text', 'assessment_overduegracedays',
-            get_string('overduegracedays', 'analyticsindicator_assessment'), array('size' => 4));
+            get_string('overduegracedays', 'engagementindicator_assessment'), array('size' => 4));
         $mform->setDefault('assessment_overduegracedays', $defaults['overduegracedays']);
         $mform->addElement('text', 'assessment_overduemaximumdays',
-            get_string('overduemaximumdays', 'analyticsindicator_assessment'), array('size' => 4));
+            get_string('overduemaximumdays', 'engagementindicator_assessment'), array('size' => 4));
         $mform->setDefault('assessment_overduemaximumdays', $defaults['overduemaximumdays']);
 
         // Display overduesubmittedweighting group.
@@ -55,7 +55,7 @@ class analyticsindicator_assessment_thresholds_form {
         $grouparray[] =& $mform->createElement('text', 'assessment_overduesubmittedweighting', '', array('size' => 4));
         $grouparray[] =& $mform->createElement('static', '', '', '%');
         $mform->addGroup($grouparray, 'group_assessment_overduesubmitted',
-            get_string('overduesubmittedweighting', 'analyticsindicator_assessment'), '&nbsp;', false);
+            get_string('overduesubmittedweighting', 'engagementindicator_assessment'), '&nbsp;', false);
         $mform->setDefault('assessment_overduesubmittedweighting', $defaults['overduesubmittedweighting']*100);
 
         // Display overduenotsubmittedweighting group.
@@ -63,7 +63,7 @@ class analyticsindicator_assessment_thresholds_form {
         $grouparray[] =& $mform->createElement('text', 'assessment_overduenotsubmittedweighting', '', array('size' => 4));
         $grouparray[] =& $mform->createElement('static', '', '', '%');
         $mform->addGroup($grouparray, 'group_assessment_overduenotsubmitted',
-            get_string('overduenotsubmittedweighting', 'analyticsindicator_assessment'), '&nbsp;', false);
+            get_string('overduenotsubmittedweighting', 'engagementindicator_assessment'), '&nbsp;', false);
         $mform->setDefault('assessment_overduenotsubmittedweighting', $defaults['overduenotsubmittedweighting']*100);
     }
 }

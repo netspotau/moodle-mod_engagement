@@ -17,7 +17,7 @@
 /**
  * Strings
  *
- * @package    analyticsindicator_login
+ * @package    engagementindicator_login
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

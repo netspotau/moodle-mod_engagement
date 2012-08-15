@@ -17,7 +17,7 @@
 /**
  * This file defines a class with login indicator logic
  *
- * @package    analyticsindicator_login
+ * @package    engagementindicator_login
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(dirname(__FILE__).'/../indicator.class.php');
 require_once(dirname(__FILE__).'/indicator.class.php');
 
-class analyticsindicator_login_thresholds_form {
+class engagementindicator_login_thresholds_form {
 
     /**
      * Define the elements to be displayed in the form
@@ -43,16 +43,16 @@ class analyticsindicator_login_thresholds_form {
         foreach ($elements as $element) {
             $grouparray = array();
             $grouparray[] =& $mform->createElement('text', "login_e_$element", '', array('size' => 5));
-            $grouparray[] =& $mform->createElement('static', '', '', get_string('weighting', 'report_analytics'));
+            $grouparray[] =& $mform->createElement('static', '', '', get_string('weighting', 'report_engagement'));
             $grouparray[] =& $mform->createElement('text', "login_w_$element", '', array('size' => 3));
             $grouparray[] =& $mform->createElement('static', '', '', '%');
-            $mform->addGroup($grouparray, "group_loginspastweek", get_string("e$element", "analyticsindicator_login"), '&nbsp;',
+            $mform->addGroup($grouparray, "group_loginspastweek", get_string("e$element", "engagementindicator_login"), '&nbsp;',
                 false);
             $mform->setDefault("login_e_$element", $defaults["e_$element"]);
             $mform->setDefault("login_w_$element", $defaults["w_$element"]);
         }
 
-        $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'analyticsindicator_login'),
+        $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'engagementindicator_login'),
             array('size' => 5));
     }
 }
