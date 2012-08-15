@@ -32,6 +32,8 @@ calculated over the cached information.  Eg. new assignment submissions, logins
 etc will not be detected until the cached data expires.  This setting is
 important for performance reasons, so as to not overload the database with
 queries on high-traffic sites.';
+$string['incorrectlyconfigured'] = 'This plugin has been incorrectly configured. It is not intended to be added to a course in
+this fashion. Please contact your system administrator to set the mod_engagement plugin as hidden.';
 $string['modulename'] = 'Engagement analytics';
 $string['modulenameplural'] = 'Engagement analytics';
 $string['pluginname'] = 'Engagement analytics';
