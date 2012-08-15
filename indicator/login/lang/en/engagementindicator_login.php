@@ -28,9 +28,9 @@ $string['pluginname'] = 'Login Activity';
 // Settings.
 $string['eloginspastweek'] = 'Expected logins in the past week';
 $string['eloginsperweek'] = 'Expected logins per week';
-$string['eavgsessionlength'] = 'Expected average session length';
-$string['etimesincelast'] = 'Expected time since last login';
-$string['sessionlength'] = 'Session Length';
+$string['eavgsessionlength'] = 'Expected average session length (seconds)';
+$string['etimesincelast'] = 'Expected time since last login (seconds)';
+$string['sessionlength'] = 'Session Length (seconds)';
 
 // Other.
 $string['localrisk'] = 'Local Risk';

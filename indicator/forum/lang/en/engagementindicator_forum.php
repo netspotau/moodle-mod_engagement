@@ -22,10 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['e_newposts'] = 'New Posts';
-$string['e_readposts'] = 'Read Posts';
-$string['e_replies'] = 'Replies';
-$string['e_totalposts'] = 'Total Posts';
+$string['e_newposts'] = 'New posts per week';
+$string['e_readposts'] = 'Read posts per week';
+$string['e_replies'] = 'Replies per week';
+$string['e_totalposts'] = 'Total posts per week';
 $string['maxrisk'] = 'Max Risk';
 $string['norisk'] = 'No Risk';
 $string['pluginname'] = 'Forum Activity';
