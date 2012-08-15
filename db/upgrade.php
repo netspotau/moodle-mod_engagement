@@ -15,33 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upgrades for analytics
+ * Upgrades for engagement
  *
- * @package    mod_analytics
+ * @package    mod_engagement
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function xmldb_analytics_upgrade($oldversion) {
+function xmldb_engagement_upgrade($oldversion) {
     global $CFG, $DB;
 
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2012061900) {
-        if (!$dbman->table_exists('analytics_cache')) {
-            $dbman->install_one_table_from_xmldb_file($CFG->dirroot.'/mod/analytics/db/install.xml', 'analytics_cache');
+        if (!$dbman->table_exists('engagement_cache')) {
+            $dbman->install_one_table_from_xmldb_file($CFG->dirroot.'/mod/engagement/db/install.xml', 'engagement_cache');
         }
-        upgrade_mod_savepoint(true, 2012061900, 'analytics');
+        upgrade_mod_savepoint(true, 2012061900, 'engagement');
     }
 
     if ($oldversion < 2012080700) {
-        $table = new xmldb_table('analytics_cache');
+        $table = new xmldb_table('engagement_cache');
         $field = new xmldb_field('rawdata');
         $field->set_attributes(XMLDB_TYPE_TEXT, 'big', null, null, null, null, null);
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field, 'settings');
         }
 
-        upgrade_mod_savepoint(true, 2012080700, 'analytics');
+        upgrade_mod_savepoint(true, 2012080700, 'engagement');
     }
 }

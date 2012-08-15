@@ -17,7 +17,7 @@
 /**
  * This file defines functions used for the assessment indicator
  *
- * @package    analyticsindicator_assessment
+ * @package    engagementindicator_assessment
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param array $data
  * @return array
  */
-function analyticsindicator_assessment_process_edit_form($data) {
+function engagementindicator_assessment_process_edit_form($data) {
     $configdata = array();
     $configdata['assessment_overduegracedays'] = $data->assessment_overduegracedays;
     $configdata['assessment_overduemaximumdays'] = $data->assessment_overduemaximumdays;

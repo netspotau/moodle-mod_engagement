@@ -17,7 +17,7 @@
 /**
  * This file defines functions used for the login indicator
  *
- * @package    analyticsindicator_login
+ * @package    engagementindicator_login
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param array $data
  * @return array
  */
-function analyticsindicator_login_process_edit_form($data) {
+function engagementindicator_login_process_edit_form($data) {
     $configdata = array();
     $elements = array('loginspastweek', 'loginsperweek', 'avgsessionlength', 'timesincelast');
     foreach ($elements as $element) {

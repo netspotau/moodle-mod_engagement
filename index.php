@@ -20,4 +20,4 @@
 require_once(dirname(__FILE__) . '/../../config.php');
 
 $id = optional_param('id', 0, PARAM_INT);
-redirect(new moodle_url('/report/analytics/index.php', array('id' => $id)));
+redirect(new moodle_url('/report/engagement/index.php', array('id' => $id)));

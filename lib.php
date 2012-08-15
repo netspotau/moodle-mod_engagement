@@ -17,10 +17,10 @@
 // This is not an actual activity module. This exists as a mod because...
 // ... other plugins aren't allowed to have sub-plugins.
 
-function analytics_add_instance($analytics, $mform) {
+function engagement_add_instance($engagement, $mform) {
     return false;
 }
 
-function analytics_update_instance($analytics, $mform) {
+function engagement_update_instance($engagement, $mform) {
     return false;
 }

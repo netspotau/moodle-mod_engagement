@@ -17,7 +17,7 @@
 /**
  * This file defines functions used for the forum indicator
  *
- * @package    analyticsindicator_forum
+ * @package    engagementindicator_forum
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param array $data
  * @return array
  */
-function analyticsindicator_forum_process_edit_form($data) {
+function engagementindicator_forum_process_edit_form($data) {
     $configdata = array();
     $elements = array('newposts', 'readposts', 'replies', 'totalposts');
     foreach ($elements as $element) {

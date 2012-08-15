@@ -17,7 +17,7 @@
 /**
  * Analytics subplugin types declaration
  *
- * @package    mod_analytics
+ * @package    mod_engagement
  * @copyright  2012 NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,5 +25,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $subplugins = array(
-    'analyticsindicator' => 'mod/analytics/indicator',
+    'engagementindicator' => 'mod/engagement/indicator',
 );

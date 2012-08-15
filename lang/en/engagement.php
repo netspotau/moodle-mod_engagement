@@ -18,7 +18,7 @@
  * Strings
  *
  * @package    mod
- * @subpackage analytics
+ * @subpackage engagement
  * @copyright  NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@
 $string['cachettl'] = 'Cache TTL';
 $string['cachingdisabled'] = 'Caching Disabled';
 $string['configcachettl'] = 'This setting specifies the Time To Live for cached
-analytics data.  If this is set, risk calculations displayed in the
+engagement data.  If this is set, risk calculations displayed in the
 block will not necessarily reflect live data, but will instead will be
 calculated over the cached information.  Eg. new assignment submissions, logins
 etc will not be detected until the cached data expires.  This setting is
@@ -35,4 +35,4 @@ queries on high-traffic sites.';
 $string['modulename'] = 'Engagement analytics';
 $string['modulenameplural'] = 'Engagement analytics';
 $string['pluginname'] = 'Engagement analytics';
-$string['roles_desc'] = 'The roles to report on in the analytics block and reports';
+$string['roles_desc'] = 'The roles to report on in the engagement block and reports';

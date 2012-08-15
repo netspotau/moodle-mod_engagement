@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-function xmldb_analytics_install() {
+function xmldb_engagement_install() {
     global $DB;
 
     // Disable this module by default.
-    $DB->set_field('modules', 'visible', 0, array('name' => 'analytics'));
+    $DB->set_field('modules', 'visible', 0, array('name' => 'engagement'));
 }
