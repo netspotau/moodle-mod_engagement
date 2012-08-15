@@ -14,3 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// This is not an actual activity module. This exists as a mod because...
+// ... other plugins aren't allowed to have sub-plugins.
+
+function analytics_add_instance($analytics, $mform) {
+    return false;
+}
+
+function analytics_update_instance($analytics, $mform) {
+    return false;
+}

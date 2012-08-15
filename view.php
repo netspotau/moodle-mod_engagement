@@ -14,18 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version info
- *
- * @package    mod_analytics
- * @copyright  2012 NetSpot Pty Ltd
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+// This is not an actual activity module. This exists as a mod because...
+// ... other plugins aren't allowed to have sub-plugins.
 
-defined('MOODLE_INTERNAL') || die;
-
-$module->version   = 2012080700;       // The current plugin version (Date: YYYYMMDDXX)
-$module->requires  = 2011110200;       // Requires this Moodle version
-$module->component = 'mod_analytics'; // Full name of the plugin (used for diagnostics).
-
-$module->maturity = MATURITY_STABLE;
+require_once(dirname(__FILE__) . '/../../config.php');
+print_error('invalidcoursemodule');
