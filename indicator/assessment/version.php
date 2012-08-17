@@ -28,5 +28,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version  = 2012033000;
-$plugin->requires = 2011110200;  // Requires this Moodle version.
+$plugin->requires = 2010112400;  // Requires this Moodle version.
 $plugin->component = 'engagementindicator_assessment';
