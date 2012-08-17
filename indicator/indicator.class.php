@@ -34,7 +34,7 @@ abstract class indicator {
     public function __construct($courseid, array $_config = array()) {
         global $DB;
         $this->courseid = $courseid;
-        $this->context = context_course::instance($courseid);
+        $this->context = get_context_instance(CONTEXT_COURSE, $courseid);
 
         if ($record = $DB->get_record('report_engagement', array('course' => $courseid, 'indicator' => self::get_name()))) {
             $this->instance = $record;
