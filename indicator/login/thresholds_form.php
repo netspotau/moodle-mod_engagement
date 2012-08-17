@@ -43,7 +43,7 @@ class engagementindicator_login_thresholds_form {
         foreach ($elements as $element) {
             $grouparray = array();
             $grouparray[] =& $mform->createElement('text', "login_e_$element", '', array('size' => 5));
-            $grouparray[] =& $mform->createElement('static', '', '', get_string('weighting', 'report_engagement'));
+            $grouparray[] =& $mform->createElement('static', '', '', get_string('weighting', 'coursereport_engagement'));
             $grouparray[] =& $mform->createElement('text', "login_w_$element", '', array('size' => 3));
             $grouparray[] =& $mform->createElement('static', '', '', '%');
             $mform->addGroup($grouparray, "group_loginspastweek", get_string("e$element", "engagementindicator_login"), '&nbsp;',

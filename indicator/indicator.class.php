@@ -36,7 +36,7 @@ abstract class indicator {
         $this->courseid = $courseid;
         $this->context = get_context_instance(CONTEXT_COURSE, $courseid);
 
-        if ($record = $DB->get_record('report_engagement', array('course' => $courseid, 'indicator' => self::get_name()))) {
+        if ($record = $DB->get_record('coursereport_engagement', array('course' => $courseid, 'indicator' => self::get_name()))) {
             $this->instance = $record;
         } else {
             $record = new stdClass();
@@ -44,7 +44,7 @@ abstract class indicator {
             $record->indicator = self::get_name();
             $record->weight = 0;
             $record->configdata = null;
-            $DB->insert_record('report_engagement', $record);
+            $DB->insert_record('coursereport_engagement', $record);
             $this->instance = $record;
         }
 
@@ -228,7 +228,7 @@ abstract class indicator {
             $indicatorname = self::get_name();
             $configdata = base64_encode(serialize($this->config));
             $this->instance->configdata = $configdata;
-            $DB->update_record('report_engagement', $this->instance);
+            $DB->update_record('coursereport_engagement', $this->instance);
         }
     }
 }
