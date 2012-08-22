@@ -160,13 +160,17 @@ class indicator_assessment extends indicator {
             }
         }
         // Get list of students in overriden groups.
-        list ($insql, $params) = $DB->get_in_or_equal(array_keys($group_overrides));
-        $group_members = $DB->get_records_sql("
-            SELECT        id, groupid, userid
-            FROM          {groups_members}
-            WHERE         groupid $insql
-        ", $params);
         $groups = array();
+        if (!empty($group_overrides)) {
+            list ($insql, $params) = $DB->get_in_or_equal(array_keys($group_overrides));
+            $group_members = $DB->get_records_sql("
+                SELECT        id, groupid, userid
+                FROM          {groups_members}
+                WHERE         groupid $insql
+            ", $params);
+        } else {
+            $group_members = array();
+        }
         foreach ($group_members as $gm) {
             $groups[$gm->groupid][] = $gm->userid;
         }
