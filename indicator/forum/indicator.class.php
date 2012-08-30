@@ -183,8 +183,10 @@ class indicator_forum extends indicator {
             $reasons[] = $reason;
             $risk += $risk_contribution;
 
-            $risks[$userid]->risk = $risk;
-            $risks[$userid]->info = $reasons;
+            $info = new stdClass();
+            $info->risk = $risk;
+            $info->info = $reasons;
+            $risks[$userid] = $info;
         }
 
         return $risks;
