@@ -47,7 +47,7 @@ class indicator_forum extends indicator {
         // Table: mdl_forum_posts, fields: userid, created, discussion, parent.
         // Table: mdl_forum_discussions, fields: userid, course, id.
         // Table: mdl_forum_read, fields: userid, discussionid, postid, firstread.
-        $sql = "SELECT p.userid, p.created, p.parent
+        $sql = "SELECT p.id, p.userid, p.created, p.parent
                 FROM {forum_posts} p
                 JOIN {forum_discussions} d ON (d.id = p.discussion)
                 WHERE d.course = :courseid
