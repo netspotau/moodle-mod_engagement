@@ -46,9 +46,11 @@ class engagementindicator_assessment_thresholds_form {
         $mform->addElement('text', 'assessment_overduegracedays',
             get_string('overduegracedays', 'engagementindicator_assessment'), array('size' => 4));
         $mform->setDefault('assessment_overduegracedays', $defaults['overduegracedays']);
+        $mform->setType('assessment_overduegracedays', PARAM_FLOAT);
         $mform->addElement('text', 'assessment_overduemaximumdays',
             get_string('overduemaximumdays', 'engagementindicator_assessment'), array('size' => 4));
         $mform->setDefault('assessment_overduemaximumdays', $defaults['overduemaximumdays']);
+        $mform->setType('assessment_overduemaximumdays', PARAM_FLOAT);
 
         // Display overduesubmittedweighting group.
         $grouparray = array();
@@ -57,6 +59,7 @@ class engagementindicator_assessment_thresholds_form {
         $mform->addGroup($grouparray, 'group_assessment_overduesubmitted',
             get_string('overduesubmittedweighting', 'engagementindicator_assessment'), '&nbsp;', false);
         $mform->setDefault('assessment_overduesubmittedweighting', $defaults['overduesubmittedweighting']*100);
+        $mform->setType('assessment_overduesubmittedweighting', PARAM_FLOAT);
 
         // Display overduenotsubmittedweighting group.
         $grouparray = array();
@@ -65,5 +68,6 @@ class engagementindicator_assessment_thresholds_form {
         $mform->addGroup($grouparray, 'group_assessment_overduenotsubmitted',
             get_string('overduenotsubmittedweighting', 'engagementindicator_assessment'), '&nbsp;', false);
         $mform->setDefault('assessment_overduenotsubmittedweighting', $defaults['overduenotsubmittedweighting']*100);
+        $mform->setType('assessment_overduenotsubmittedweighting', PARAM_FLOAT);
     }
 }

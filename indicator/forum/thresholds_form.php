@@ -50,14 +50,17 @@ class engagementindicator_forum_thresholds_form {
             $grouparray[] =& $mform->createElement('static', '', '', "&nbsp;$strnorisk");
             $grouparray[] =& $mform->createElement('text', "forum_no_$element", '', array('size' => 5));
             $mform->setDefault("forum_no_$element", $defaults["no_$element"]);
+            $mform->setType("forum_no_$element", PARAM_FLOAT);
 
             $grouparray[] =& $mform->createElement('static', '', '', $strmaxrisk);
             $grouparray[] =& $mform->createElement('text', "forum_max_$element", '', array('size' => 5));
             $mform->setDefault("forum_max_$element", $defaults["max_$element"]);
+            $mform->setType("forum_max_$element", PARAM_FLOAT);
 
             $grouparray[] =& $mform->createElement('static', '', '', get_string('weighting', 'report_engagement'));
             $grouparray[] =& $mform->createElement('text', "forum_w_$element", '', array('size' => 3));
             $mform->setDefault("forum_w_$element", $defaults["w_$element"]*100);
+            $mform->setType("forum_w_$element", PARAM_FLOAT);
 
             $grouparray[] =& $mform->createElement('static', '', '', '%');
             $mform->addGroup($grouparray, "group_forum_$element", get_string("e_$element", "engagementindicator_forum"), '&nbsp;',
