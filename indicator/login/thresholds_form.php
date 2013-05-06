@@ -50,6 +50,8 @@ class engagementindicator_login_thresholds_form {
                 false);
             $mform->setDefault("login_e_$element", $defaults["e_$element"]);
             $mform->setDefault("login_w_$element", $defaults["w_$element"]*100);
+            $mform->setType("login_e_$element", PARAM_FLOAT);
+            $mform->setType("login_w_$element", PARAM_FLOAT);
         }
 
         $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'engagementindicator_login'),
