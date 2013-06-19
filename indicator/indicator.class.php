@@ -92,7 +92,7 @@ abstract class indicator {
 
         list($esql, $eparams) = get_enrolled_sql($this->context, '', 0, true); // Only active users.
         list($rsql, $rparams) = $DB->get_in_or_equal($roleids, SQL_PARAMS_NAMED, 'roles');
-        $sql = "SELECT je.id
+        $sql = "SELECT ".$DB->sql_concat_join("'_'", array('je.id', 'ra.id')).", je.id as jeid
                 FROM ($esql) je
                 JOIN {role_assignments} ra ON (ra.userid = je.id)
                 WHERE ra.contextid = :contextid AND ra.roleid $rsql";
@@ -100,7 +100,13 @@ abstract class indicator {
         $params['contextid'] = $this->context->id;
 
         $result = $DB->get_records_sql($sql, $params);
-        $users = array_keys($result);
+        $users = array();
+        foreach ($result as $key => $row) {
+            if (!isset($users[$row->jeid])) {
+                $users[$row->jeid] = true;
+            }
+        }
+        $users = array_keys($users);
 
         return self::get_risk_for_users($users, $startdate, $enddate);
     }

@@ -55,7 +55,7 @@ class indicator_forum extends indicator {
         $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
-        if ($postrecs = $DB->get_records_sql($sql, $params)) {
+        if ($postrecs = $DB->get_recordset_sql($sql, $params)) {
             foreach ($postrecs as $post) {
                 $week = date('W', $post->created);
                 if (!isset($posts[$post->userid])) {
@@ -78,6 +78,7 @@ class indicator_forum extends indicator {
                     $posts[$post->userid]['replies']++;
                 }
             }
+            $postrecs->close();
         }
 
         $sql = "SELECT *
@@ -88,13 +89,14 @@ class indicator_forum extends indicator {
         $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
-        if ($readposts = $DB->get_records_sql($sql, $params)) {
+        if ($readposts = $DB->get_recordset_sql($sql, $params)) {
             foreach ($readposts as $read) {
                 if (!isset($posts[$read->userid])) {
                     $posts[$read->userid]['read'] = 0;
                 }
                 $posts[$read->userid]['read']++;
             }
+            $readposts->close();
         }
 
         $rawdata = new stdClass();
