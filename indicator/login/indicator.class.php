@@ -49,7 +49,7 @@ class indicator_login extends indicator {
                 FROM {log}
                 WHERE course = :courseid AND time >= :startdate AND time <= :enddate
                 ORDER BY time ASC";
-        if ($logs = $DB->get_records_sql($sql, $params)) {
+        if ($logs = $DB->get_recordset_sql($sql, $params)) {
             // Need to calculate sessions, sessions are defined by time between consequtive logs not exceeding setting.
             foreach ($logs as $log) {
                 $increment = false;
@@ -84,6 +84,7 @@ class indicator_login extends indicator {
                 }
                 $sessions[$log->userid]['lastlogin'] = $log->time;
             }
+            $logs->close();
         }
 
         return $sessions;
