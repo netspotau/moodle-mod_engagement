@@ -83,8 +83,8 @@ class indicator_forum extends indicator {
 
         $sql = "SELECT *
                 FROM {forum_read} fr
-                JOIN {forum_discussions} d ON (d.id = fr.discussionid)
-                WHERE d.course = :courseid
+                JOIN {forum} f ON (f.id = fr.forumid)
+                WHERE f.course = :courseid
                     AND fr.firstread > :startdate AND fr.firstread < :enddate";
         $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
