@@ -57,5 +57,6 @@ class engagementindicator_login_thresholds_form {
         $mform->addElement('text', 'login_session_length', get_string('sessionlength', 'engagementindicator_login'),
             array('size' => 5));
         $mform->setDefault("login_session_length", $defaults["session_length"]);
+        $mform->setType('login_session_length', PARAM_INT);
     }
 }
