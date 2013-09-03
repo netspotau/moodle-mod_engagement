@@ -51,5 +51,5 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_pickroles('engagement/roles', get_string('roles'),
                         get_string('roles_desc', 'engagement'), array('student')));
     $settings->add(new admin_setting_configselect('engagement/cachettl', get_string('cachettl', 'engagement'),
-                        get_string('configcachettl', 'engagement'), 300, $cachetimes));
+                        get_string('configcachettl', 'engagement'), 3600, $cachetimes));
 }
