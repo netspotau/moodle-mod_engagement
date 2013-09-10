@@ -44,4 +44,6 @@ function xmldb_engagement_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2012080700, 'engagement');
     }
+
+    return true;
 }
