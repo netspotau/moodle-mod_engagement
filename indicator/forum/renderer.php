@@ -33,21 +33,21 @@ class engagementindicator_forum_renderer extends engagementindicator_renderer {
             $html .= html_writer::end_tag('strong');
             $html .= html_writer::empty_tag('br');
             $html .= $this->output->help_icon('weighting', 'engagementindicator_forum');
-            $html .= html_writer::tag('span', 'Weighting: ' . $i->weighting);
+            $html .= html_writer::tag('span', get_string('weighting', 'engagementindicator_forum').': ' . $i->weighting);
             $html .= html_writer::empty_tag('br');
             $html .= $this->output->help_icon('localrisk', 'engagementindicator_forum');
-            $html .= html_writer::tag('span', 'Local risk: ' . $i->localrisk);
+            $html .= html_writer::tag('span', get_string('localrisk', 'engagementindicator_forum').': ' . $i->localrisk);
             $html .= html_writer::empty_tag('br');
             $html .= $this->output->help_icon('riskcontribution', 'engagementindicator_forum');
-            $html .= html_writer::tag('span', 'Risk Contribution: ' .  $i->riskcontribution);
+            $html .= html_writer::tag('span', get_string('riskcontribution', 'engagementindicator_forum').': ' .  $i->riskcontribution);
             $html .= html_writer::empty_tag('br');
             $html .= $this->output->help_icon('logic', 'engagementindicator_assessment');
-            $html .= html_writer::tag('span', 'Logic: ' .  $i->logic);
+            $html .= html_writer::tag('span', get_string('logic', 'engagementindicator_forum').': ' .  $i->logic);
             $html .= html_writer::empty_tag('br');
             $html .= html_writer::empty_tag('br');
         }
         $value = sprintf("%.0f%%", 100 * $data->risk);
-        $html .= html_writer::tag('span', "Risk Score: $value");
+        $html .= html_writer::tag('span', get_string('riskscore', 'engagement').": $value");
         return $html;
     }
 }

@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/report/engagement/locallib.php');
 abstract class engagementindicator_renderer extends plugin_renderer_base {
     public function user_report($data) {
         $value = sprintf("%.0f%%", 100 * $data->risk);
-        $html = html_writer::tag('span', "Risk Score: $value");
+        $html = html_writer::tag('span', get_string('riskscore', 'engagement').": $value");
         return $html;
     }
 }

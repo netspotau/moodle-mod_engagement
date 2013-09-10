@@ -201,7 +201,7 @@ class indicator_assessment extends indicator {
             $grademax = $quiz_ids[$q->id]->grademax;
             // Process user overrides for this quiz.
 
-            $this->calculator->add_assessment($grademax, $submissions[$q->id], 'Quiz: ' . $q->name);
+            $this->calculator->add_assessment($grademax, $submissions[$q->id], get_string('modulename', 'quiz').': ' . $q->name);
         }
     }
 
@@ -262,7 +262,7 @@ class assessment_risk_calculator {
                 $reason->assessment = $a->description;
                 $submittime = isset($a->submissions[$uid]['submitted']) ? $a->submissions[$uid]['submitted'] : PHP_INT_MAX;
                 $timedue = isset($a->submissions[$uid]['due']) ? $a->submissions[$uid]['due'] : 1;
-                $num_days_late = ($submittime - $timedue) / 86400;
+                $num_days_late = ($submittime - $timedue) / DAYSECS;
                 $days_late_weighting = ($num_days_late - $settings['overduegracedays']) /
                                      ($settings['overduemaximumdays'] - $settings['overduegracedays']);
                 $days_late_weighting = max(0, min(1, $days_late_weighting));

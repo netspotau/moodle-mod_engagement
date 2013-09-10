@@ -39,3 +39,4 @@ $string['modulename'] = 'Engagement analytics';
 $string['modulenameplural'] = 'Engagement analytics';
 $string['pluginname'] = 'Engagement analytics';
 $string['roles_desc'] = 'The roles to report on in the engagement block and reports';
+$string['riskscore'] = 'Risk score';

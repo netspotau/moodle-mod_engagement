@@ -78,7 +78,7 @@ class indicator_login extends indicator {
                     }
                     $sessions[$log->userid]['weeks'][$week]++;
 
-                    if ($log->time > ($enddate - 7*24*60*60)) { // Session in past week.
+                    if ($log->time > ($enddate - WEEKSECS)) { // Session in past week.
                         $sessions[$log->userid]['pastweek']++;
                     }
                 }
@@ -121,7 +121,7 @@ class indicator_login extends indicator {
                 $reason = new stdClass();
                 $reason->weighting = '100%';
                 $reason->localrisk = '100%';
-                $reason->logic = "This user has never logged into the course and so is at the maximum 100% risk.";
+                $reason->logic = get_string('reasonnologin', 'engagementindicator_login');
                 $reason->riskcontribution = '100%';
                 $reason->title = $strmaxrisktitle;
                 $info->info = array($reason);
@@ -135,8 +135,7 @@ class indicator_login extends indicator {
             $reason = new stdClass();
             $reason->weighting = intval($this->config['w_loginspastweek']*100).'%';
             $reason->localrisk = intval($local_risk*100).'%';
-            $reason->logic = "0% risk for more than {$this->config['e_loginspastweek']} logins a week. ".
-                             "100% for 0 logins in the past week.";
+            $reason->logic = get_string('reasonloginspastweek', 'engagementindicator_login', $this->config['e_loginspastweek']);
             $reason->riskcontribution = intval($risk_contribution*100).'%';
             $reason->title = $strloginspastweek;
             $reasons[] = $reason;
@@ -153,8 +152,7 @@ class indicator_login extends indicator {
             $reason = new stdClass();
             $reason->weighting = intval($this->config['w_avgsessionlength']*100).'%';
             $reason->localrisk = intval($local_risk*100).'%';
-            $reason->logic = "0% risk for average session length longer than ".
-                             "{$this->config['e_avgsessionlength']} seconds. 100% for session length of 0.";
+            $reason->logic = get_string('reasonavgsessionlen', 'engagementindicator_login', $this->config['e_avgsessionlength']);
             $reason->riskcontribution = intval($risk_contribution*100).'%';
             $reason->title = $stravgsessionlength;
             $reasons[] = $reason;
@@ -171,8 +169,7 @@ class indicator_login extends indicator {
             $reason = new stdClass();
             $reason->weighting = intval($this->config['w_loginsperweek']*100).'%';
             $reason->localrisk = intval($local_risk*100).'%';
-            $reason->logic = "0% risk for logging in to the course >= {$this->config['e_loginsperweek']} ".
-                             "times a week. 100% risk for 0 logins a week.";
+            $reason->logic = get_string('reasonloginsperweek', 'engagementindicator_login', $this->config['e_loginsperweek']);
             $reason->riskcontribution = intval($risk_contribution*100).'%';
             $reason->title = $strloginsperweek;
             $reasons[] = $reason;
@@ -185,8 +182,7 @@ class indicator_login extends indicator {
             $reason = new stdClass();
             $reason->weighting = intval($this->config['w_timesincelast']*100).'%';
             $reason->localrisk = intval($local_risk*100).'%';
-            $reason->logic = "0% risk for last login to the course having just happened. ".
-                             "Scaling to the max 100% risk after ".($this->config['e_timesincelast']/86400)." days.";
+            $reason->logic = get_string('reasontimesincelogin', 'engagementindicator_login', $this->config['e_timesincelast'] / DAYSECS);
             $reason->riskcontribution = intval($risk_contribution*100).'%';
             $reason->title = $strtimesincelast;
             $reasons[] = $reason;
