@@ -1,5 +1,0 @@
-- Display traffic lights on the course report
-- Add support for the lesson module into the assessment indicator.
-- Implement proper use of start date / end date in all indicators (currently
-  some indicators are only designed to return whole-of-course data).
-- Add more indicators.
