@@ -26,7 +26,7 @@ The main plugin you'll need to set up the engagement weightings and rules. It's 
 Repo: http://github.com/netspotau/moodle-report_engagement
 
 ##Credits
-Engagement Analytics was developed by NetSpoty Pty Ltd for Monash University (http://www.monash.edu.au) as part of the NetSpot Innovation Fund.
+Engagement Analytics was developed by NetSpot Pty Ltd for Monash University (http://www.monash.edu.au) as part of the NetSpot Innovation Fund.
 
 Code: Adam Olley (adam.olley@netspot.com.au)  
 Code: Ashley Holman  
