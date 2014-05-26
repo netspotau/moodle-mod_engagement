@@ -64,8 +64,11 @@ class indicator_assessment extends indicator {
 
         foreach ($activities as $mod => $items) {
             switch ($mod) {
-                case 'assignment':
+                case 'assign':
                     $this->add_assignments($items);
+                    break;
+                case 'assignment':
+                    $this->add_assignments_old($items);
                     break;
                 case 'quiz':
                     $this->add_quizzes($items);
@@ -87,6 +90,39 @@ class indicator_assessment extends indicator {
     }
 
     private function add_assignments($grade_items) {
+        global $DB;
+
+        $submissions = array();
+        foreach ($grade_items as $gi) {
+            $assignment_ids[$gi->iteminstance] = $gi;
+            $submissions[$gi->iteminstance] = array();
+        }
+        list($insql, $params) = $DB->get_in_or_equal(array_keys($assignment_ids));
+        $sql = "SELECT        id, duedate, name
+                FROM          {assign}
+                WHERE         id $insql
+                    AND       nosubmissions = 0";
+        $assignments = $DB->get_records_sql($sql, $params);
+        // Collect up the submissions.
+        $subs = $DB->get_records_sql("
+          SELECT        sub.id, sub.assignment, sub.userid, sub.timemodified, a.duedate
+          FROM          {assign_submission} sub
+          JOIN          {assign} a ON sub.assignment = a.id
+          WHERE         assignment $insql
+            AND         sub.status = 'submitted'
+        ", $params);
+        foreach ($subs as $s) {
+            $submissions[$s->assignment][$s->userid]['submitted'] = $s->timemodified;
+            $submissions[$s->assignment][$s->userid]['due'] = $s->duedate;
+        }
+        // Finally add the assessment details into the calculator.
+        foreach ($assignments as $a) {
+            $grademax = $assignment_ids[$a->id]->grademax;
+            $this->calculator->add_assessment($grademax, $submissions[$a->id], "Assignment: {$a->name}");
+        }
+    }
+
+    private function add_assignments_old($grade_items) {
         global $DB;
 
         $submissions = array();
