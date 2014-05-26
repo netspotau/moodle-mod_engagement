@@ -118,7 +118,7 @@ class indicator_assessment extends indicator {
         // Finally add the assessment details into the calculator.
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
-            $this->calculator->add_assessment($grademax, $submissions[$a->id], "Assignment: {$a->name}");
+            $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assign').": {$a->name}");
         }
     }
 
@@ -152,7 +152,7 @@ class indicator_assessment extends indicator {
         // Finally add the assessment details into the calculator.
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
-            $this->calculator->add_assessment($grademax, $submissions[$a->id], "Assignment: {$a->name}");
+            $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assignment').": {$a->name}");
         }
     }
 
