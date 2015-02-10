@@ -119,7 +119,6 @@ abstract class indicator {
         } else if (is_int($userids)) {
             $userids = array($userids);
         }
-<<<<<<< HEAD
 		
 		// get query limit settings
         $querystartdatetime = get_config('engagement', 'querystartdatetime');
@@ -140,15 +139,7 @@ abstract class indicator {
 			} else {
 				$this->enddate = time();
 			}
-=======
-
-        if ($startdate == null) {
-            $this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
-        }
-        if ($enddate == null) {
-            $this->enddate = time();
->>>>>>> 6fad683298d296c5cfe2d4c6d61b411ffabc85c4
-        }
+		}
 
         $this->cachettl = get_config('engagement', 'cachettl');
         // If caching is enabled and cache data exists, use that, otherwise call function to fetch live.
