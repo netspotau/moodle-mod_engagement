@@ -119,12 +119,35 @@ abstract class indicator {
         } else if (is_int($userids)) {
             $userids = array($userids);
         }
+<<<<<<< HEAD
+		
+		// get query limit settings
+        $querystartdatetime = get_config('engagement', 'querystartdatetime');
+		$queryenddatetime = get_config('engagement', 'queryenddatetime');
+		$queryspecifydatetime = get_config('engagement', 'queryspecifydatetime');
+		// set startdate if necessary
+        if ($startdate == null) {
+			if ($querystartdatetime && $queryspecifydatetime) {
+				$this->startdate = $querystartdatetime;
+			} else {
+				$this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			}
+        }
+		// set enddate if necessary
+        if ($enddate == null) {
+			if ($queryenddatetime && $queryspecifydatetime) {
+				$this->enddate = $queryenddatetime;
+			} else {
+				$this->enddate = time();
+			}
+=======
 
         if ($startdate == null) {
             $this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
         }
         if ($enddate == null) {
             $this->enddate = time();
+>>>>>>> 6fad683298d296c5cfe2d4c6d61b411ffabc85c4
         }
 
         $this->cachettl = get_config('engagement', 'cachettl');
