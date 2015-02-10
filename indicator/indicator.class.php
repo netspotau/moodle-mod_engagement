@@ -112,7 +112,7 @@ abstract class indicator {
     }
 
     private function get_risk_for_users($userids, $startdate, $enddate) {
-        global $DB;
+        global $DB, $COURSE;
 
         if (empty($userids)) {
             return array();
@@ -121,21 +121,24 @@ abstract class indicator {
         }
 		
 		// get query limit settings
-        $querystartdatetime = get_config('engagement', 'querystartdatetime');
-		$queryenddatetime = get_config('engagement', 'queryenddatetime');
-		$queryspecifydatetime = get_config('engagement', 'queryspecifydatetime');
+		$settingsnames = array('queryspecifydatetime', 'querystartdatetime', 'queryenddatetime');
+		$querysettings = new stdClass();
+		foreach ($settingsnames as $name) {
+			$tempvar = $DB->get_record_sql("SELECT * FROM {report_engagement} WHERE course = $COURSE->id AND indicator = '$name'");
+			$querysettings->{"$name"} = $tempvar->configdata;
+		}
 		// set startdate if necessary
         if ($startdate == null) {
-			if ($querystartdatetime && $queryspecifydatetime) {
-				$this->startdate = $querystartdatetime;
+			if ($querysettings->querystartdatetime && $querysettings->queryspecifydatetime) {
+				$this->startdate = $querysettings->querystartdatetime;
 			} else {
 				$this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
 			}
         }
 		// set enddate if necessary
         if ($enddate == null) {
-			if ($queryenddatetime && $queryspecifydatetime) {
-				$this->enddate = $queryenddatetime;
+			if ($querysettings->queryenddatetime && $querysettings->queryspecifydatetime) {
+				$this->enddate = $querysettings->queryenddatetime;
 			} else {
 				$this->enddate = time();
 			}
