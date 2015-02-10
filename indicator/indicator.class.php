@@ -145,6 +145,7 @@ abstract class indicator {
 		}
 
         $this->cachettl = get_config('engagement', 'cachettl');
+		$this->cachettl = 0; // hack to disable cache
         // If caching is enabled and cache data exists, use that, otherwise call function to fetch live.
         if ($this->cachettl && $rawdata = $this->get_cache()) { // TODO: Try to fetch from cache here.
             $this->rawdata = $rawdata;
