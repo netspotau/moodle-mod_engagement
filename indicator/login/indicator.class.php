@@ -51,18 +51,14 @@ class indicator_login extends indicator {
 			$sqllog27 = "SELECT c.id, c.userid, c.time
 							FROM 
 							(
-								SELECT id, userid, time
+								SELECT id, userid, time, course
 								FROM {log}
-								WHERE course = :courseid AND time >= :startdate AND time <= :enddate
 								UNION
-								SELECT id, userid, timecreated AS time
+								SELECT id, userid, timecreated AS time, courseid AS course
 								FROM {logstore_standard_log}
-								WHERE courseid = :courseidls AND timecreated >= :startdatels AND timecreated <= :enddatels
-							) c ORDER BY time ASC";
-			// additional params
-			$params['courseidls'] = $this->courseid;
-			$params['startdatels'] = $startdate;
-			$params['enddatels'] = $enddate;
+							) c 
+							WHERE c.course = :courseid AND c.time >= :startdate AND c.time <= :enddate
+							ORDER BY c.time ASC";
 			// run query
 			$logs = $DB->get_recordset_sql($sqllog27, $params);
 		} catch (Exception $e) {
