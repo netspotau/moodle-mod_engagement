@@ -110,7 +110,7 @@ abstract class indicator {
 
         return self::get_risk_for_users($users, $startdate, $enddate);
     }
-
+	
     private function get_risk_for_users($userids, $startdate, $enddate) {
         global $DB, $COURSE;
 
@@ -147,15 +147,14 @@ abstract class indicator {
         $this->cachettl = get_config('engagement', 'cachettl');
 		$this->cachettl = 0; // hack to disable cache
         // If caching is enabled and cache data exists, use that, otherwise call function to fetch live.
-        if ($this->cachettl && $rawdata = $this->get_cache()) { // TODO: Try to fetch from cache here.
+        /*if ($this->cachettl && $rawdata = $this->get_cache()) { // TODO: Try to fetch from cache here.
             $this->rawdata = $rawdata;
-        } else {
+        } else {*/
             $this->rawdata = $this->get_rawdata($this->startdate, $this->enddate);
             if ($this->cachettl) {
                 $this->set_cache();
             }
-        }
-
+        /*}*/ // disable use of cache
         return $this->calculate_risks($userids);
     }
 
