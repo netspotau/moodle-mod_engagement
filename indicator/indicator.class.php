@@ -145,7 +145,9 @@ abstract class indicator {
         global $DB;
 
         $params = array($this->get_name(), $this->courseid, $this->startdate, time() - $this->cachettl);
-        $rawdata = $DB->get_field_sql('
+        if($CFG->dbtype == 'oci') {
+            $rawdata = $DB->get_field_sql('
+                        SELECT rawdata FROM(
                           SELECT      rawdata
                           FROM        {engagement_cache}
                           WHERE       indicator = ?
@@ -153,7 +155,18 @@ abstract class indicator {
                             AND       timestart = ?
                             AND       timemodified > ?
                           ORDER BY    timemodified DESC
-                          LIMIT 1', $params);
+                        ) WHERE ROWNUM = 1', $params);
+        } else {
+            $rawdata = $DB->get_field_sql('
+                        SELECT      rawdata
+                          FROM        {engagement_cache}
+                          WHERE       indicator = ?
+                            AND       courseid = ?
+                            AND       timestart = ?
+                            AND       timemodified > ?
+                          ORDER BY    timemodified DESC
+                        LIMIT 1', $params);
+        }
         if ($rawdata) {
             return unserialize(base64_decode($rawdata));
         }
