@@ -145,15 +145,12 @@ abstract class indicator {
         global $DB;
 
         $params = array($this->get_name(), $this->courseid, $this->startdate, time() - $this->cachettl);
-        $rawdata = $DB->get_field_sql('
-                          SELECT      rawdata
-                          FROM        {engagement_cache}
-                          WHERE       indicator = ?
-                            AND       courseid = ?
-                            AND       timestart = ?
-                            AND       timemodified > ?
-                          ORDER BY    timemodified DESC
-                          LIMIT 1', $params);
+        $select = 'indicator = ? AND courseid = ? AND timestart = ? AND timemodified > ?';
+        $rawdata = false;
+        $records = $DB->get_records_select('engagement_cache', $select, $params, 'timemodified DESC', 'rawdata', 0, 1);
+        if (!empty($records)) {
+            $rawdata = current($records)->rawdata;
+        }
         if ($rawdata) {
             return unserialize(base64_decode($rawdata));
         }
