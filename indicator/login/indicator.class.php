@@ -45,11 +45,31 @@ class indicator_login extends indicator {
         $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
-        $sql = "SELECT id, userid, time
-                FROM {log}
-                WHERE course = :courseid AND time >= :startdate AND time <= :enddate
-                ORDER BY time ASC";
-        if ($logs = $DB->get_recordset_sql($sql, $params)) {
+		// attempt to query both v2.7 logstore_standard_log table as well as legacy log table
+		try {
+			// query combination of logstore_standard_log and legacy log tables
+			$sqllog27 = "SELECT c.id, c.userid, c.time
+							FROM 
+							(
+								SELECT id, userid, time, course
+								FROM {log}
+								UNION
+								SELECT id, userid, timecreated AS time, courseid AS course
+								FROM {logstore_standard_log}
+							) c 
+							WHERE c.course = :courseid AND c.time >= :startdate AND c.time <= :enddate
+							ORDER BY c.time ASC";
+			// run query
+			$logs = $DB->get_recordset_sql($sqllog27, $params);
+		} catch (Exception $e) {
+			// otherwise query legacy only
+			$sql = "SELECT id, userid, time
+					FROM {log}
+					WHERE course = :courseid AND time >= :startdate AND time <= :enddate
+					ORDER BY time ASC";
+			$logs = $DB->get_recordset_sql($sql, $params);
+		}
+        if ($logs) {
             // Need to calculate sessions, sessions are defined by time between consequtive logs not exceeding setting.
             foreach ($logs as $log) {
                 $increment = false;

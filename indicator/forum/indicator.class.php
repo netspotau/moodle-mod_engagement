@@ -80,7 +80,8 @@ class indicator_forum extends indicator {
             }
             $postrecs->close();
         }
-
+		
+		// try fetching data from forum_read table first
         $sql = "SELECT *
                 FROM {forum_read} fr
                 JOIN {forum} f ON (f.id = fr.forumid)
@@ -89,7 +90,35 @@ class indicator_forum extends indicator {
         $params['courseid'] = $this->courseid;
         $params['startdate'] = $startdate;
         $params['enddate'] = $enddate;
-        if ($readposts = $DB->get_recordset_sql($sql, $params)) {
+		$readposts = $DB->get_recordset_sql($sql, $params);
+		// check if there is any data in forum_read table
+		if (!$readposts->valid()) {
+			// if not, then fetch data from the logs
+			try {
+				// try fetch from both post v2.7 logstore and legacy log
+				$sql = "SELECT c.id, c.userid
+						FROM (
+							SELECT id, userid, timecreated AS time, courseid AS course
+							FROM {logstore_standard_log}
+							WHERE target = 'discussion' AND action = 'viewed'
+							UNION
+							SELECT id, userid, time, course
+							FROM {log}
+							WHERE module = 'forum' AND action = 'view discussion'
+						) c 
+						WHERE c.course = :courseid AND c.time >= :startdate AND c.time <= :enddate";
+				$readposts = $DB->get_recordset_sql($sql, $params);
+			} catch (Exception $e) {
+				// if error thrown, could be missing logstore_standard_log table, so try legacy only
+				$sql = "SELECT id, userid
+						FROM {log}
+						WHERE course = :courseid AND time >= :startdate AND time <= :enddate
+							AND module = 'forum' AND action = 'view discussion'";
+				$readposts = $DB->get_recordset_sql($sql, $params);
+			}
+		}
+		
+        if ($readposts) {
             foreach ($readposts as $read) {
                 if (!isset($posts[$read->userid])) {
                     $posts[$read->userid]['read'] = 0;
@@ -136,6 +165,23 @@ class indicator_forum extends indicator {
                 $risks[$userid] = $info;
                 continue;
             }
+
+            // Add missing data if necessary.
+            if (empty($this->rawdata->posts[$userid]['total'])) {
+                $this->rawdata->posts[$userid]['total'] = 0;
+            }   
+
+            if (empty($this->rawdata->posts[$userid]['replies'])) {
+                $this->rawdata->posts[$userid]['replies'] = 0;
+            }   
+
+            if (empty($this->rawdata->posts[$userid]['new'])) {
+                $this->rawdata->posts[$userid]['new'] = 0;
+            }   
+
+            if (empty($this->rawdata->posts[$userid]['read'])) {
+                $this->rawdata->posts[$userid]['read'] = 0;
+            }   
 
             $local_risk = $this->calculate('totalposts', $this->rawdata->posts[$userid]['total']);
             $risk_contribution = $local_risk * $this->config['w_totalposts'];

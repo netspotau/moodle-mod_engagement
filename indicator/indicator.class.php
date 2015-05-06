@@ -30,6 +30,7 @@ abstract class indicator {
     protected $courseid;
     protected $instance;
     protected $rawdata;
+	protected $userarray;
 
     public function __construct($courseid, array $_config = array()) {
         global $DB;
@@ -107,36 +108,63 @@ abstract class indicator {
             }
         }
         $users = array_keys($users);
+		$this->userarray = $users;
 
         return self::get_risk_for_users($users, $startdate, $enddate);
     }
 
+	public function get_course_rawdata($startdate = null, $enddate = null) {
+		return $this->rawdata;
+	}
+	
+	public function get_course_users() {
+		return $this->userarray;
+	}
+	
     private function get_risk_for_users($userids, $startdate, $enddate) {
-        global $DB;
+        global $DB, $COURSE;
 
         if (empty($userids)) {
             return array();
         } else if (is_int($userids)) {
             $userids = array($userids);
         }
-
+		
+		// get query limit settings
+		$settingsnames = array('queryspecifydatetime', 'querystartdatetime', 'queryenddatetime');
+		$querysettings = new stdClass();
+		foreach ($settingsnames as $name) {
+			$tempvar = $DB->get_record_sql("SELECT * FROM {report_engagement} WHERE course = $COURSE->id AND indicator = '$name'");
+			$querysettings->{"$name"} = $tempvar->configdata;
+		}
+		// set startdate if necessary
         if ($startdate == null) {
-            $this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			if ($querysettings->querystartdatetime && $querysettings->queryspecifydatetime) {
+				$this->startdate = $querysettings->querystartdatetime;
+			} else {
+				$this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			}
         }
+		// set enddate if necessary
         if ($enddate == null) {
-            $this->enddate = time();
-        }
+			if ($querysettings->queryenddatetime && $querysettings->queryspecifydatetime) {
+				$this->enddate = $querysettings->queryenddatetime;
+			} else {
+				$this->enddate = time();
+			}
+		}
 
         $this->cachettl = get_config('engagement', 'cachettl');
+		$this->cachettl = 0; // hack to disable cache
         // If caching is enabled and cache data exists, use that, otherwise call function to fetch live.
-        if ($this->cachettl && $rawdata = $this->get_cache()) { // TODO: Try to fetch from cache here.
+        /*if ($this->cachettl && $rawdata = $this->get_cache()) { // TODO: Try to fetch from cache here.
             $this->rawdata = $rawdata;
-        } else {
+        } else {*/
             $this->rawdata = $this->get_rawdata($this->startdate, $this->enddate);
             if ($this->cachettl) {
                 $this->set_cache();
             }
-        }
+        /*}*/ // disable use of cache
 
         return $this->calculate_risks($userids);
     }
