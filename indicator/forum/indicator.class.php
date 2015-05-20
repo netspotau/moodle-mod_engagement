@@ -111,7 +111,7 @@ class indicator_forum extends indicator {
 			}
 			$query_sql = 'SELECT c.id, c.userid FROM (' . implode(' UNION ', $sql) . ') c WHERE c.course = :courseid AND c.time >= :startdate AND c.time <= :enddate';
 			// read logs
-			$logs = $DB->get_recordset_sql($query_sql, $params);
+			$readposts = $DB->get_recordset_sql($query_sql, $params);
 		}
         if ($readposts) {
             foreach ($readposts as $read) {
