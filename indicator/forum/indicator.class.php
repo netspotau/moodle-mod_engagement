@@ -93,7 +93,6 @@ class indicator_forum extends indicator {
 		$readposts = $DB->get_recordset_sql($sql, $params);
 		// Check if there is any data in forum_read table
 		if (!$readposts->valid()) {
-			var_dump($readposts->valid());
 			// If not, fetch data from logs
 			// set the sql based on log reader(s) available
 			$sql = array();
