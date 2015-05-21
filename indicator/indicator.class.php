@@ -112,7 +112,7 @@ abstract class indicator {
     }
 
     private function get_risk_for_users($userids, $startdate, $enddate) {
-        global $DB;
+        global $DB, $CFG;
 
         if (empty($userids)) {
             return array();
@@ -120,11 +120,22 @@ abstract class indicator {
             $userids = array($userids);
         }
 
+		require_once($CFG->dirroot . '/report/engagement/locallib.php');
+		$generic_settings = report_engagement_get_generic_settings($this->courseid);
+		
         if ($startdate == null) {
-            $this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			if (isset($generic_settings['queryspecifydatetime']) && $generic_settings['queryspecifydatetime']->value && $generic_settings['querystartdatetime']->value) {
+				$this->startdate = $generic_settings['querystartdatetime']->value;
+			} else {
+				$this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			}
         }
         if ($enddate == null) {
-            $this->enddate = time();
+			if (isset($generic_settings['queryspecifydatetime']) && $generic_settings['queryspecifydatetime']->value && $generic_settings['queryenddatetime']->value) {
+				$this->enddate = $generic_settings['queryenddatetime']->value;
+			} else {
+				$this->enddate = time();
+			}
         }
 
         $this->cachettl = get_config('engagement', 'cachettl');
