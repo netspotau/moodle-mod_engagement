@@ -30,6 +30,7 @@ abstract class indicator {
     protected $courseid;
     protected $instance;
     protected $rawdata;
+	protected $userarray;
 
     public function __construct($courseid, array $_config = array()) {
         global $DB;
@@ -107,10 +108,19 @@ abstract class indicator {
             }
         }
         $users = array_keys($users);
+		$this->userarray = $users;
 
         return self::get_risk_for_users($users, $startdate, $enddate);
     }
 
+	public function get_course_rawdata($startdate = null, $enddate = null) {
+		return $this->rawdata;
+	}
+	
+	public function get_course_users() {
+		return $this->userarray;
+	}	
+	
     private function get_risk_for_users($userids, $startdate, $enddate) {
         global $DB, $CFG;
 
