@@ -303,7 +303,7 @@ class assessment_risk_calculator {
                                      ($settings['overduemaximumdays'] - $settings['overduegracedays']);
                 $days_late_weighting = max(0, min(1, $days_late_weighting));
                 $assessment_value_weighting = $a->maxscore / $total_assessment_value;
-                $reason->assessmentweighting = intval($assessment_value_weighting*100) . '%';
+                $reason->assessmentweighting = number_format($assessment_value_weighting*100, 1) . '%';
                 if (isset($a->submissions[$uid]['submitted'])) {
                     // Assessment was submitted.
                     $attime = date("d-m-Y H:i", $submittime);
@@ -314,8 +314,8 @@ class assessment_risk_calculator {
                     $local_risk = $days_late_weighting * $settings['overduesubmittedweighting'];
                     $risk_contribution = $assessment_value_weighting * $local_risk;
                     $risk += $risk_contribution;
-                    $reason->riskcontribution = intval($risk_contribution*100).'%';
-                    $reason->localrisk = intval($local_risk*100).'%';
+                    $reason->riskcontribution = number_format($risk_contribution*100, 1).'%';
+                    $reason->localrisk = number_format($local_risk*100, 1).'%';
                     $mr = intval($settings['overduesubmittedweighting'] * 100);
                     $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
                 } else {
@@ -323,8 +323,8 @@ class assessment_risk_calculator {
                     $local_risk = $days_late_weighting * $settings['overduenotsubmittedweighting'];
                     $risk_contribution = $assessment_value_weighting * $local_risk;
                     $risk += $risk_contribution;
-                    $reason->riskcontribution = intval($risk_contribution*100).'%';
-                    $reason->localrisk = intval($local_risk*100).'%';
+                    $reason->riskcontribution = number_format($risk_contribution*100, 1).'%';
+                    $reason->localrisk = number_format($local_risk*100, 1).'%';
                     $mr = intval($settings['overduenotsubmittedweighting'] * 100);
                     $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
                 }
