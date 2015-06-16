@@ -29,6 +29,9 @@ require_once(dirname(__FILE__).'/../indicator.class.php');
 require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 class indicator_assessment extends indicator {
+	
+	private $sumgrades = 0;
+	
     /**
      * get_risk_for_users_users
      *
@@ -45,17 +48,16 @@ class indicator_assessment extends indicator {
         $this->calculator = new assessment_risk_calculator;
 
         $rawdata = new stdClass();
-        $rawdata->sumgrades = 0;
 
-        $activities = array();
+        $activities = array(); //id, itemtype, itemmodule, iteminstance, grademax
         $grade_items = $DB->get_records_sql("
-            SELECT      id, itemtype, itemmodule, iteminstance, grademax
+            SELECT      *
             FROM        {grade_items}
             WHERE       courseid=?
         ", array($this->courseid));
         foreach ($grade_items as $gi) {
             if (in_array($gi->itemtype, array('mod', 'manual'))) {
-                $rawdata->sumgrades += $gi->grademax;
+                // $rawdata->sumgrades += $gi->grademax; // calculate this in the add_* methods
                 if ($gi->itemtype == 'mod') {
                     $activities[$gi->itemmodule][] = $gi;
                 }
@@ -73,10 +75,14 @@ class indicator_assessment extends indicator {
                 case 'quiz':
                     $this->add_quizzes($items);
                     break;
+				case 'turnitintool':
+                    $this->add_turnitin($items);
+                    break;
             }
         }
 
         $rawdata->assessments = $this->calculator->as_object();
+		$rawdata->sumgrades = $this->sumgrades;
         return $rawdata;
     }
 
@@ -89,6 +95,41 @@ class indicator_assessment extends indicator {
         return $this->calculator->get_risks($userids, $this->rawdata->sumgrades, $this->config);
     }
 
+    private function add_turnitin($grade_items) {
+        global $DB;
+	
+		$submissions = array();
+		foreach ($grade_items as $gi) {
+			$t_assignment_ids[$gi->iteminstance] = $gi;
+			$submissions[$gi->iteminstance] = array();
+		}
+		
+		list($insql, $params) = $DB->get_in_or_equal(array_keys($t_assignment_ids));
+		
+		$t_assignments = $DB->get_records_sql("SELECT b.turnitintoolid, b.dtdue, a.name 
+												FROM {turnitintool_parts} b JOIN {turnitintool} a ON (a.id = b.turnitintoolid) 
+												WHERE b.turnitintoolid $insql", $params);
+		
+		// Collect up the turnitin submissions.
+		$t_subs = $DB->get_records_sql("SELECT e.id, e.userid, e.turnitintoolid, e.submission_modified, b.dtdue 
+										FROM {turnitintool_submissions} e JOIN {turnitintool_parts} b ON (e.turnitintoolid = b.turnitintoolid)
+										JOIN {turnitintool} a ON (a.id = e.turnitintoolid) 
+										WHERE e.turnitintoolid $insql 
+											AND e.submission_status = 'Submission successfully uploaded to Turnitin.'", $params);
+		
+		foreach ($t_subs as $s) {
+			$submissions[$s->turnitintoolid][$s->userid]['submitted'] = $s->submission_modified;
+			$submissions[$s->turnitintoolid][$s->userid]['due'] = $s->dtdue;
+		}
+		// Finally add the assessment details into the calculator.
+        foreach ($t_assignments as $a) {
+            $grademax = $t_assignment_ids[$a->turnitintoolid]->grademax;
+            $this->calculator->add_assessment($grademax, $submissions[$a->turnitintoolid], get_string('modulename', 'turnitintool').": {$a->name}");
+			// only add grademax for this into sumgrades
+			$this->sumgrades += $grademax;
+        }
+    }
+	
     private function add_assignments($grade_items) {
         global $DB;
 
@@ -119,6 +160,8 @@ class indicator_assessment extends indicator {
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
             $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assign').": {$a->name}");
+			// only add grademax for this assignment into sumgrades if submissions are allowed
+			$this->sumgrades += $grademax;
         }
     }
 
@@ -153,6 +196,8 @@ class indicator_assessment extends indicator {
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
             $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assignment').": {$a->name}");
+			// only add grademax for this assignment into sumgrades if submissions are allowed
+			$this->sumgrades += $grademax;
         }
     }
 
@@ -235,6 +280,8 @@ class indicator_assessment extends indicator {
         }
         foreach ($quizzes as $q) {
             $grademax = $quiz_ids[$q->id]->grademax;
+			// add grademax to sumgrades
+			$this->sumgrades += $grademax;
             // Process user overrides for this quiz.
 
             $this->calculator->add_assessment($grademax, $submissions[$q->id], get_string('modulename', 'quiz').': ' . $q->name);
@@ -303,7 +350,7 @@ class assessment_risk_calculator {
                                      ($settings['overduemaximumdays'] - $settings['overduegracedays']);
                 $days_late_weighting = max(0, min(1, $days_late_weighting));
                 $assessment_value_weighting = $a->maxscore / $total_assessment_value;
-                $reason->assessmentweighting = intval($assessment_value_weighting*100) . '%';
+                $reason->assessmentweighting = number_format($assessment_value_weighting*100, 1) . '%';
                 if (isset($a->submissions[$uid]['submitted'])) {
                     // Assessment was submitted.
                     $attime = date("d-m-Y H:i", $submittime);
@@ -314,8 +361,8 @@ class assessment_risk_calculator {
                     $local_risk = $days_late_weighting * $settings['overduesubmittedweighting'];
                     $risk_contribution = $assessment_value_weighting * $local_risk;
                     $risk += $risk_contribution;
-                    $reason->riskcontribution = intval($risk_contribution*100).'%';
-                    $reason->localrisk = intval($local_risk*100).'%';
+                    $reason->riskcontribution = number_format($risk_contribution*100, 1).'%';
+                    $reason->localrisk = number_format($local_risk*100, 1).'%';
                     $mr = intval($settings['overduesubmittedweighting'] * 100);
                     $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
                 } else {
@@ -323,8 +370,8 @@ class assessment_risk_calculator {
                     $local_risk = $days_late_weighting * $settings['overduenotsubmittedweighting'];
                     $risk_contribution = $assessment_value_weighting * $local_risk;
                     $risk += $risk_contribution;
-                    $reason->riskcontribution = intval($risk_contribution*100).'%';
-                    $reason->localrisk = intval($local_risk*100).'%';
+                    $reason->riskcontribution = number_format($risk_contribution*100, 1).'%';
+                    $reason->localrisk = number_format($local_risk*100, 1).'%';
                     $mr = intval($settings['overduenotsubmittedweighting'] * 100);
                     $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
                 }
