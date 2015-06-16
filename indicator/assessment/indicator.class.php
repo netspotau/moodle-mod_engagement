@@ -75,6 +75,9 @@ class indicator_assessment extends indicator {
                 case 'quiz':
                     $this->add_quizzes($items);
                     break;
+				case 'turnitintool':
+                    $this->add_turnitin($items);
+                    break;
             }
         }
 
@@ -92,6 +95,41 @@ class indicator_assessment extends indicator {
         return $this->calculator->get_risks($userids, $this->rawdata->sumgrades, $this->config);
     }
 
+    private function add_turnitin($grade_items) {
+        global $DB;
+	
+		$submissions = array();
+		foreach ($grade_items as $gi) {
+			$t_assignment_ids[$gi->iteminstance] = $gi;
+			$submissions[$gi->iteminstance] = array();
+		}
+		
+		list($insql, $params) = $DB->get_in_or_equal(array_keys($t_assignment_ids));
+		
+		$t_assignments = $DB->get_records_sql("SELECT b.turnitintoolid, b.dtdue, a.name 
+												FROM {turnitintool_parts} b JOIN {turnitintool} a ON (a.id = b.turnitintoolid) 
+												WHERE b.turnitintoolid $insql", $params);
+		
+		// Collect up the turnitin submissions.
+		$t_subs = $DB->get_records_sql("SELECT e.id, e.userid, e.turnitintoolid, e.submission_modified, b.dtdue 
+										FROM {turnitintool_submissions} e JOIN {turnitintool_parts} b ON (e.turnitintoolid = b.turnitintoolid)
+										JOIN {turnitintool} a ON (a.id = e.turnitintoolid) 
+										WHERE e.turnitintoolid $insql 
+											AND e.submission_status = 'Submission successfully uploaded to Turnitin.'", $params);
+		
+		foreach ($t_subs as $s) {
+			$submissions[$s->turnitintoolid][$s->userid]['submitted'] = $s->submission_modified;
+			$submissions[$s->turnitintoolid][$s->userid]['due'] = $s->dtdue;
+		}
+		// Finally add the assessment details into the calculator.
+        foreach ($t_assignments as $a) {
+            $grademax = $t_assignment_ids[$a->turnitintoolid]->grademax;
+            $this->calculator->add_assessment($grademax, $submissions[$a->turnitintoolid], get_string('modulename', 'turnitintool').": {$a->name}");
+			// only add grademax for this into sumgrades
+			$this->sumgrades += $grademax;
+        }
+    }
+	
     private function add_assignments($grade_items) {
         global $DB;
 
