@@ -26,6 +26,12 @@ $string['e_newposts'] = 'New posts per week';
 $string['e_readposts'] = 'Read posts per week';
 $string['e_replies'] = 'Replies per week';
 $string['e_totalposts'] = 'Total posts per week';
+
+$string['e_newposts_help'] = 'Numbers of new posts per week if a student is at no risk (first box) and maximum risk (second box) of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['e_readposts_help'] = 'Numbers of posts read per week if a student is at no risk (first box) and maximum risk (second box) of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['e_replies_help'] = 'Numbers of replies per week if a student is at no risk (first box) and maximum risk (second box) of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['e_totalposts_help'] = 'Numbers of posts (new posts and replies) per week if a student is at no risk (first box) and maximum risk (second box) of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+
 $string['maxrisk'] = 'Max Risk';
 $string['norisk'] = 'No Risk';
 $string['pluginname'] = 'Forum Activity';
