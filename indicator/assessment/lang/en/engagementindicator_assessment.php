@@ -33,7 +33,10 @@ Risk Contribution.';
 $string['logic'] = 'Logic';
 $string['logic_help'] = 'This field provides some insight into the logic used to
 arrive at the Local Risk value.';
+
 $string['pluginname'] = 'Assessment Activity';
+$string['pluginname_help'] = 'This indicator calculates risk rating based on late or non submission of assessments.';
+
 $string['overduegracedays'] = 'Overdue Grace Days';
 $string['overduemaximumdays'] = 'Overdue Maximum Days';
 $string['overduesubmittedweighting'] = 'Overdue Submitted Weighting';

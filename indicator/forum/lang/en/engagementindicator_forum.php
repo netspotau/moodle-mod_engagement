@@ -35,6 +35,7 @@ $string['e_totalposts_help'] = 'Numbers of posts (new posts and replies) per wee
 $string['maxrisk'] = 'Max Risk';
 $string['norisk'] = 'No Risk';
 $string['pluginname'] = 'Forum Activity';
+$string['pluginname_help'] = 'This indicator calculates risk rating based on student activity in forums.';
 
 // Other.
 $string['localrisk'] = 'Local Risk';

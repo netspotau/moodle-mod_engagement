@@ -24,6 +24,8 @@
 
 // Standard plugin strings.
 $string['pluginname'] = 'Login Activity';
+$string['pluginname_help'] = 'This indicator calculates risk rating based on how students access the online course site.';
+
 
 // Settings.
 $string['eloginspastweek'] = 'Expected logins in the past week';
