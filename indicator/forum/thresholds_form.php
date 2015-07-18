@@ -65,6 +65,7 @@ class engagementindicator_forum_thresholds_form {
             $grouparray[] =& $mform->createElement('static', '', '', '%');
             $mform->addGroup($grouparray, "group_forum_$element", get_string("e_$element", "engagementindicator_forum"), '&nbsp;',
                 false);
+			$mform->addHelpButton("group_forum_$element", "e_$element", 'engagementindicator_forum');
         }
     }
 }
