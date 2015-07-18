@@ -31,6 +31,11 @@ $string['eloginsperweek'] = 'Expected logins per week';
 $string['eavgsessionlength'] = 'Expected average session length (seconds)';
 $string['etimesincelast'] = 'Expected time since last login (seconds)';
 $string['sessionlength'] = 'Session Length (seconds)';
+$string['eloginspastweek_help'] = 'Number of times a student should have logged in during the past week to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['eloginsperweek_help'] = 'Number of times a student should have logged in each week (on average over the entire course) to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['eavgsessionlength_help'] = 'Average length of time a student should be spending on the online course site to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['etimesincelast_help'] = 'Average length of time a student should leave between each login to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
+$string['sessionlength_help'] = 'The maximum elapsed time between consecutive interactions with the online course site after which a subsequent interaction will be counted as a new session. For example, a setting of 3600 seconds (60 minutes) means that if a student interacts with the course site, steps away for 70 minutes, and comes back, this will be counted as two sessions.';
 
 // Other.
 $string['localrisk'] = 'Local Risk';
