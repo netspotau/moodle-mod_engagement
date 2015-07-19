@@ -26,13 +26,12 @@
 $string['pluginname'] = 'Login Activity';
 $string['pluginname_help'] = 'This indicator calculates risk rating based on how students access the online course site.';
 
-
 // Settings.
 $string['eloginspastweek'] = 'Expected logins in the past week';
 $string['eloginsperweek'] = 'Expected logins per week';
-$string['eavgsessionlength'] = 'Expected average session length (seconds)';
-$string['etimesincelast'] = 'Expected time since last login (seconds)';
-$string['sessionlength'] = 'Session Length (seconds)';
+$string['eavgsessionlength'] = 'Expected average session length (minutes)';
+$string['etimesincelast'] = 'Expected time since last login (days)';
+$string['sessionlength'] = 'Session Length (minutes)';
 $string['eloginspastweek_help'] = 'Number of times a student should have logged in during the past week to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
 $string['eloginsperweek_help'] = 'Number of times a student should have logged in each week (on average over the entire course) to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
 $string['eavgsessionlength_help'] = 'Average length of time a student should be spending on the online course site to be at no risk of disengagement. The weighting (number between 0-100) specifies how important this parameter is. The total of the weightings should add to 100.';
