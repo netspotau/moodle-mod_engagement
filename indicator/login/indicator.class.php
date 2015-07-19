@@ -231,13 +231,13 @@ class indicator_login extends indicator {
         $settings['e_loginsperweek'] = 2;
         $settings['w_loginsperweek'] = 0.3;
 
-        $settings['e_avgsessionlength'] = 10*60;
+        $settings['e_avgsessionlength'] = 10; // 10 minutes
         $settings['w_avgsessionlength'] = 0.1;
 
-        $settings['e_timesincelast'] = 7*24*60*60; // 1 week.
+        $settings['e_timesincelast'] = 7; // 7 days
         $settings['w_timesincelast'] = 0.4;
 
-        $settings['session_length'] = 60*60; // 1 hour.
+        $settings['session_length'] = 60; // 60 minutes
         return $settings;
     }
 }
