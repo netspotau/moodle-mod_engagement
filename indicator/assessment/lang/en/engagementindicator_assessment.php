@@ -36,6 +36,7 @@ arrive at the Local Risk value.';
 
 $string['pluginname'] = 'Assessment Activity';
 $string['pluginname_help'] = 'This indicator calculates risk rating based on late or non submission of assessments.';
+$string['mailer_column_header_help'] = 'Tick the checkbox(es) in this column to send messages to student(s) based on their assessment submission activity. Their assessment activity is outlined in a column to the right.';
 
 $string['overduegracedays'] = 'Overdue Grace Days';
 $string['overduemaximumdays'] = 'Overdue Maximum Days';

@@ -25,6 +25,7 @@
 // Standard plugin strings.
 $string['pluginname'] = 'Login Activity';
 $string['pluginname_help'] = 'This indicator calculates risk rating based on how students access the online course site.';
+$string['mailer_column_header_help'] = 'Tick the checkbox(es) in this column to send messages to student(s) based on their login activity. Their login activity is outlined in a column to the right.';
 
 // Settings.
 $string['eloginspastweek'] = 'Expected logins in the past week';
