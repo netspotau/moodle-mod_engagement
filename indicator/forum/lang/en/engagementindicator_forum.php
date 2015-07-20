@@ -36,6 +36,7 @@ $string['maxrisk'] = 'Max Risk';
 $string['norisk'] = 'No Risk';
 $string['pluginname'] = 'Forum Activity';
 $string['pluginname_help'] = 'This indicator calculates risk rating based on student activity in forums.';
+$string['mailer_column_header_help'] = 'Tick the checkbox(es) in this column to send messages to student(s) based on their forum activity. Their forum activity is outlined in a column to the right.';
 
 // Other.
 $string['localrisk'] = 'Local Risk';
