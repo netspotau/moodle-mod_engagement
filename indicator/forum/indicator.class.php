@@ -137,6 +137,23 @@ class indicator_forum extends indicator {
                 continue;
             }
 
+            // Add missing data if necessary.
+            if (empty($this->rawdata->posts[$userid]['total'])) {
+                $this->rawdata->posts[$userid]['total'] = 0;
+            }
+
+            if (empty($this->rawdata->posts[$userid]['replies'])) {
+                $this->rawdata->posts[$userid]['replies'] = 0;
+            }
+
+            if (empty($this->rawdata->posts[$userid]['new'])) {
+                $this->rawdata->posts[$userid]['new'] = 0;
+            }
+
+            if (empty($this->rawdata->posts[$userid]['read'])) {
+                $this->rawdata->posts[$userid]['read'] = 0;
+            }
+
             $local_risk = $this->calculate('totalposts', $this->rawdata->posts[$userid]['total']);
             $risk_contribution = $local_risk * $this->config['w_totalposts'];
             $reason = new stdClass();
