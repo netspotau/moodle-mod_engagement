@@ -24,7 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/pluginlib.php');
 require_once($CFG->dirroot . '/report/engagement/locallib.php');
 
 /**
