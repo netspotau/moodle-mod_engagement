@@ -18,7 +18,7 @@
  * Strings
  *
  * @package    engagementindicator_login
- * @copyright  2012 NetSpot Pty Ltd
+ * @copyright  2012 NetSpot Pty Ltd, 2015 Macquarie University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +33,11 @@ Risk Contribution.';
 $string['logic'] = 'Logic';
 $string['logic_help'] = 'This field provides some insight into the logic used to
 arrive at the Local Risk value.';
+
 $string['pluginname'] = 'Assessment Activity';
+$string['pluginname_help'] = 'This indicator calculates risk rating based on late or non submission of assessments.';
+$string['mailer_column_header_help'] = 'Tick the checkbox(es) in this column to send messages to student(s) based on their assessment submission activity. Their assessment activity is outlined in a column to the right.';
+
 $string['overduegracedays'] = 'Overdue Grace Days';
 $string['overduemaximumdays'] = 'Overdue Maximum Days';
 $string['overduesubmittedweighting'] = 'Overdue Submitted Weighting';
@@ -57,3 +61,10 @@ $string['weighting_help'] = 'This figure shows the max grade of this assessment
 as a percentage of total max grade for all assessments tracked by the Assessment
 Indicator.  The local_weighting will be multiplied by this to form the risk
 contribution.';
+
+// thresholds form
+$string['overduegracedays_help'] = 'The number of grace days a student has before a late or non-submitted assessment starts contributing to their risk rating for this indicator. Enter a whole number.';
+$string['overduemaximumdays_help'] = 'The number of days after which a student receives the full weighting (specified below) from this indicator. Enter a whole number.';
+$string['overduesubmittedweighting_help'] = 'The maximum weighting applied for each late submission. The weighting of late submissions on the risk rating for this indicator increases over time until reaching this maximum weighting when the overdue maximum days is reached. Enter a whole number between 0-100.';
+$string['overduenotsubmittedweighting_help'] = 'The maximum weighting applied for each non-submission. The weighting of non-submissions on the risk rating for this indicator increases over time until reaching this maximum weighting when the overdue maximum days is reached.  Enter a whole number between 0-100.';
+

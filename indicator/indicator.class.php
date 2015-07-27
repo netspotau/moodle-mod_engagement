@@ -30,6 +30,7 @@ abstract class indicator {
     protected $courseid;
     protected $instance;
     protected $rawdata;
+	protected $userarray;
 
     public function __construct($courseid, array $_config = array()) {
         global $DB;
@@ -107,12 +108,21 @@ abstract class indicator {
             }
         }
         $users = array_keys($users);
+		$this->userarray = $users;
 
         return self::get_risk_for_users($users, $startdate, $enddate);
     }
 
+	public function get_course_rawdata($startdate = null, $enddate = null) {
+		return $this->rawdata;
+	}
+	
+	public function get_course_users() {
+		return $this->userarray;
+	}	
+	
     private function get_risk_for_users($userids, $startdate, $enddate) {
-        global $DB;
+        global $DB, $CFG;
 
         if (empty($userids)) {
             return array();
@@ -120,11 +130,22 @@ abstract class indicator {
             $userids = array($userids);
         }
 
+		require_once($CFG->dirroot . '/report/engagement/locallib.php');
+		$generic_settings = report_engagement_get_generic_settings($this->courseid);
+		
         if ($startdate == null) {
-            $this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			if (isset($generic_settings['queryspecifydatetime']) && $generic_settings['queryspecifydatetime']->value && $generic_settings['querystartdatetime']->value) {
+				$this->startdate = $generic_settings['querystartdatetime']->value;
+			} else {
+				$this->startdate = $DB->get_field('course', 'startdate', array('id' => $this->courseid));
+			}
         }
         if ($enddate == null) {
-            $this->enddate = time();
+			if (isset($generic_settings['queryspecifydatetime']) && $generic_settings['queryspecifydatetime']->value && $generic_settings['queryenddatetime']->value) {
+				$this->enddate = $generic_settings['queryenddatetime']->value;
+			} else {
+				$this->enddate = time();
+			}
         }
 
         $this->cachettl = get_config('engagement', 'cachettl');
