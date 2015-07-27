@@ -29,9 +29,9 @@ require_once(dirname(__FILE__).'/../indicator.class.php');
 require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 class indicator_assessment extends indicator {
-	
-	private $sumgrades = 0;
-	
+
+    private $sumgrades = 0;
+
     /**
      * get_risk_for_users_users
      *
@@ -49,15 +49,14 @@ class indicator_assessment extends indicator {
 
         $rawdata = new stdClass();
 
-        $activities = array(); //id, itemtype, itemmodule, iteminstance, grademax
-        $grade_items = $DB->get_records_sql("
+        $activities = array();
+        $gradeitems = $DB->get_records_sql("
             SELECT      *
             FROM        {grade_items}
             WHERE       courseid=?
         ", array($this->courseid));
-        foreach ($grade_items as $gi) {
+        foreach ($gradeitems as $gi) {
             if (in_array($gi->itemtype, array('mod', 'manual'))) {
-                // $rawdata->sumgrades += $gi->grademax; // calculate this in the add_* methods
                 if ($gi->itemtype == 'mod') {
                     $activities[$gi->itemmodule][] = $gi;
                 }
@@ -79,7 +78,7 @@ class indicator_assessment extends indicator {
         }
 
         $rawdata->assessments = $this->calculator->as_object();
-		$rawdata->sumgrades = $this->sumgrades;
+        $rawdata->sumgrades = $this->sumgrades;
         return $rawdata;
     }
 
@@ -92,11 +91,11 @@ class indicator_assessment extends indicator {
         return $this->calculator->get_risks($userids, $this->rawdata->sumgrades, $this->config);
     }
 
-    private function add_assignments($grade_items) {
+    private function add_assignments($gradeitems) {
         global $DB;
 
         $submissions = array();
-        foreach ($grade_items as $gi) {
+        foreach ($gradeitems as $gi) {
             $assignment_ids[$gi->iteminstance] = $gi;
             $submissions[$gi->iteminstance] = array();
         }
@@ -122,16 +121,16 @@ class indicator_assessment extends indicator {
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
             $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assign').": {$a->name}");
-			// only add grademax for this assignment into sumgrades if submissions are allowed
-			$this->sumgrades += $grademax;
+            // Only add grademax for this assignment into sumgrades if submissions are allowed.
+            $this->sumgrades += $grademax;
         }
     }
 
-    private function add_assignments_old($grade_items) {
+    private function add_assignments_old($gradeitems) {
         global $DB;
 
         $submissions = array();
-        foreach ($grade_items as $gi) {
+        foreach ($gradeitems as $gi) {
             $assignment_ids[$gi->iteminstance] = $gi;
             $submissions[$gi->iteminstance] = array();
         }
@@ -158,16 +157,16 @@ class indicator_assessment extends indicator {
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
             $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assignment').": {$a->name}");
-			// only add grademax for this assignment into sumgrades if submissions are allowed
-			$this->sumgrades += $grademax;
+            // Only add grademax for this assignment into sumgrades if submissions are allowed.
+            $this->sumgrades += $grademax;
         }
     }
 
-    private function add_quizzes($grade_items) {
+    private function add_quizzes($gradeitems) {
         global $DB;
 
         $submissions = array();
-        foreach ($grade_items as $gi) {
+        foreach ($gradeitems as $gi) {
             $quiz_ids[$gi->iteminstance] = $gi;
             $submissions[$gi->iteminstance] = array();
         }
@@ -242,10 +241,8 @@ class indicator_assessment extends indicator {
         }
         foreach ($quizzes as $q) {
             $grademax = $quiz_ids[$q->id]->grademax;
-			// add grademax to sumgrades
-			$this->sumgrades += $grademax;
+            $this->sumgrades += $grademax;
             // Process user overrides for this quiz.
-
             $this->calculator->add_assessment($grademax, $submissions[$q->id], get_string('modulename', 'quiz').': ' . $q->name);
         }
     }
