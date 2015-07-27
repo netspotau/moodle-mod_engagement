@@ -40,12 +40,9 @@ $string['sessionlength_help'] = 'The maximum elapsed time between consecutive in
 
 // Other.
 $string['localrisk'] = 'Local Risk';
-$string['localrisk_help'] = 'The risk percentage of this login alone, out
-of 100.  The local risk is multiplied by the login weighting to form the
-Risk Contribution.';
+$string['localrisk_help'] = 'The risk percentage of this login alone, out of 100.  The local risk is multiplied by the login weighting to form the Risk Contribution.';
 $string['logic'] = 'Logic';
-$string['logic_help'] = 'This field provides some insight into the logic used to
-arrive at the Local Risk value.';
+$string['logic_help'] = 'This field provides some insight into the logic used to arrive at the Local Risk value.';
 $string['maxrisktitle'] = 'Never logged in';
 $string['reasonavgsessionlen'] = '0% risk for average session length lower than {$a} seconds. 100% for session length of 0.';
 $string['reasonloginspastweek'] = '0% risk for more than {$a} logins a week. 100% for 0 logins in the past week.';
@@ -53,13 +50,6 @@ $string['reasonloginsperweek'] = '0% risk for logging in to the course >= {$a} t
 $string['reasonnologin'] = 'This user has never logged into the course and so is at the maximum 100% risk.';
 $string['reasontimesincelogin'] = '0% risk for last login to the course having just happened. Scaling to the max 100% risk after {$a} days.';
 $string['riskcontribution'] = 'Risk Contribution';
-$string['riskcontribution_help'] = 'The amount of risk this particular
-login contributes to the overall risk returned for the Login
-indicator.  This is formed by multiplying the Local Risk with the login
-Weighting.  The Risk Contributions of each login are summed together to
-form the overall risk for the indicator.';
+$string['riskcontribution_help'] = 'The amount of risk this particular login contributes to the overall risk returned for the Login indicator.  This is formed by multiplying the Local Risk with the login Weighting.  The Risk Contributions of each login are summed together to form the overall risk for the indicator.';
 $string['weighting'] = 'Weighting';
-$string['weighting_help'] = 'This figure shows the amount this item
-contributes towards the overall risk for the Login indicator.
-The local risk will be multiplied by this to form the risk
-contribution.';
+$string['weighting_help'] = 'This figure shows the amount this item contributes towards the overall risk for the Login indicator. The local risk will be multiplied by this to form the risk contribution.';

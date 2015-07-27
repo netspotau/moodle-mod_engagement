@@ -41,29 +41,29 @@ class indicator_login extends indicator {
 
         $sessions = array();
 
-		// set the sql based on log reader(s) available
-		$params = array();
-		$params['courseid_legacy'] = $params['courseid_standard'] = $this->courseid;
-		$params['startdate_legacy'] = $params['startdate_standard'] = $startdate;
-		$params['enddate_legacy'] = $params['enddate_standard'] = $enddate;
-		$sql = array();
-		$logmanager = get_log_manager();
-		$readers = $logmanager->get_readers(); 
-		foreach ($readers as $reader) {
-			if ($reader instanceof \logstore_legacy\log\store) {
-				$sql['legacy'] = 'SELECT id, userid, time
-									FROM {log}
-									WHERE course = :courseid_legacy AND time >= :startdate_legacy AND time <= :enddate_legacy';
-			} else if ($reader instanceof \logstore_standard\log\store) {
-				$sql['standard'] = 'SELECT id, userid, timecreated AS time
-									FROM {logstore_standard_log}
-									WHERE courseid = :courseid_standard AND timecreated >= :startdate_standard AND timecreated <= :enddate_standard';
-			}
-		}
-		$query_sql = 'SELECT c.id, c.userid, c.time FROM (' . implode(' UNION ', $sql) . ') c ORDER BY time ASC';
-		// read logs
-		$logs = $DB->get_recordset_sql($query_sql, $params);
-				
+        // set the sql based on log reader(s) available
+        $params = array();
+        $params['courseid_legacy'] = $params['courseid_standard'] = $this->courseid;
+        $params['startdate_legacy'] = $params['startdate_standard'] = $startdate;
+        $params['enddate_legacy'] = $params['enddate_standard'] = $enddate;
+        $sql = array();
+        $logmanager = get_log_manager();
+        $readers = $logmanager->get_readers();
+        foreach ($readers as $reader) {
+            if ($reader instanceof \logstore_legacy\log\store) {
+                $sql['legacy'] = 'SELECT id, userid, time
+                                    FROM {log}
+                                    WHERE course = :courseid_legacy AND time >= :startdate_legacy AND time <= :enddate_legacy';
+            } else if ($reader instanceof \logstore_standard\log\store) {
+                $sql['standard'] = 'SELECT id, userid, timecreated AS time
+                                    FROM {logstore_standard_log}
+                                    WHERE courseid = :courseid_standard AND timecreated >= :startdate_standard AND timecreated <= :enddate_standard';
+            }
+        }
+        $query_sql = 'SELECT c.id, c.userid, c.time FROM (' . implode(' UNION ', $sql) . ') c ORDER BY time ASC';
+        // read logs
+        $logs = $DB->get_recordset_sql($query_sql, $params);
+
         if ($logs) {
             // Need to calculate sessions, sessions are defined by time between consequtive logs not exceeding setting.
             foreach ($logs as $log) {
