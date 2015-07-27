@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$module->version   = 2015052102;       // The current plugin version (Date: YYYYMMDDXX)
-$module->requires  = 2013101800;      // Requires this Moodle version
-$module->component = 'mod_engagement'; // Full name of the plugin (used for diagnostics).
+$module->version   = 2015072700;
+$module->requires  = 2013101800;
+$module->component = 'mod_engagement';
 
 $module->maturity = MATURITY_STABLE;
