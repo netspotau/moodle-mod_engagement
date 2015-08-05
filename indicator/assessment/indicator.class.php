@@ -124,7 +124,7 @@ class indicator_assessment extends indicator {
 		// Finally add the assessment details into the calculator.
         foreach ($t_assignments as $a) {
             $grademax = $t_assignment_ids[$a->turnitintoolid]->grademax;
-            $this->calculator->add_assessment($grademax, $submissions[$a->turnitintoolid], get_string('modulename', 'turnitintool').": {$a->name}");
+            $this->calculator->add_assessment($grademax, $submissions[$a->turnitintoolid], get_string('modulename', 'turnitintool').": {$a->name}", $a->dtdue);
 			// only add grademax for this into sumgrades
 			$this->sumgrades += $grademax;
         }
@@ -159,7 +159,7 @@ class indicator_assessment extends indicator {
         // Finally add the assessment details into the calculator.
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
-            $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assign').": {$a->name}");
+            $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assign').": {$a->name}", $a->duedate);
 			// only add grademax for this assignment into sumgrades if submissions are allowed
 			$this->sumgrades += $grademax;
         }
@@ -195,7 +195,7 @@ class indicator_assessment extends indicator {
         // Finally add the assessment details into the calculator.
         foreach ($assignments as $a) {
             $grademax = $assignment_ids[$a->id]->grademax;
-            $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assignment').": {$a->name}");
+            $this->calculator->add_assessment($grademax, $submissions[$a->id], get_string('modulename', 'assignment').": {$a->name}", $a->timedue);
 			// only add grademax for this assignment into sumgrades if submissions are allowed
 			$this->sumgrades += $grademax;
         }
@@ -284,7 +284,7 @@ class indicator_assessment extends indicator {
 			$this->sumgrades += $grademax;
             // Process user overrides for this quiz.
 
-            $this->calculator->add_assessment($grademax, $submissions[$q->id], get_string('modulename', 'quiz').': ' . $q->name);
+            $this->calculator->add_assessment($grademax, $submissions[$q->id], get_string('modulename', 'quiz').': ' . $q->name, $q->timeclose);
         }
     }
 
@@ -321,11 +321,12 @@ class assessment_risk_calculator {
         $this->assessments = $from_object;
     }
 
-    public function add_assessment($maxscore, $submissions, $description) {
+    public function add_assessment($maxscore, $submissions, $description, $due) {
         $a = new stdClass;
         $a->maxscore = $maxscore;
         $a->submissions = $submissions;
         $a->description = $description;
+		$a->due = $due;
         $this->assessments[] = $a;
     }
 
@@ -345,7 +346,7 @@ class assessment_risk_calculator {
                 $reason->assessment = $a->description;
                 $submittime = isset($a->submissions[$uid]['submitted']) ? $a->submissions[$uid]['submitted'] : PHP_INT_MAX;
                 $timedue = isset($a->submissions[$uid]['due']) ? $a->submissions[$uid]['due'] : 1;
-                $num_days_late = ($submittime - $timedue) / DAYSECS;
+				$num_days_late = ($submittime - $timedue) / DAYSECS;
                 $days_late_weighting = ($num_days_late - $settings['overduegracedays']) /
                                      ($settings['overduemaximumdays'] - $settings['overduegracedays']);
                 $days_late_weighting = max(0, min(1, $days_late_weighting));
@@ -365,7 +366,18 @@ class assessment_risk_calculator {
                     $reason->localrisk = number_format($local_risk*100, 1).'%';
                     $mr = intval($settings['overduesubmittedweighting'] * 100);
                     $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
-                } else {
+                } else if ($a->due > time()) {
+					// Assessment not due yet
+					$timedue = date("d-m-Y H:i", $a->due);
+					$reason->submitted = "Not due yet; due $timedue";
+                    $local_risk = 0;
+                    $risk_contribution = 0;
+                    $risk += $risk_contribution;
+                    $reason->riskcontribution = number_format($risk_contribution*100, 1).'%';
+                    $reason->localrisk = number_format($local_risk*100, 1).'%';
+                    $mr = intval($settings['overduesubmittedweighting'] * 100);
+                    $reason->logic = "0% risk before grace period ($gp days) ... $mr% risk after max days ($md).";
+				} else {
                     $reason->submitted = "not submitted.";
                     $local_risk = $days_late_weighting * $settings['overduenotsubmittedweighting'];
                     $risk_contribution = $assessment_value_weighting * $local_risk;
