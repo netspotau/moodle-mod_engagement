@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$module->version   = 2015072700;
-$module->requires  = 2013101800;
-$module->component = 'mod_engagement';
+$plugin->version   = 2015072700;
+$plugin->requires  = 2013101800;
+$plugin->component = 'mod_engagement';
 
-$module->maturity = MATURITY_STABLE;
+$plugin->maturity = MATURITY_STABLE;
